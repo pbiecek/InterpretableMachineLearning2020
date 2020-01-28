@@ -1,6 +1,6 @@
 # Interpretable Machine Learning 2020
 
-Lecture notes for 'Interpretable Machine Learning' at WUT and UoW. Summer semester 2019/2020
+Lecture notes for 'Interpretable Machine Learning' at [WUT](https://usosweb.usos.pw.edu.pl/kontroler.php?_action=katalog2/przedmioty/pokazPrzedmiot&kod=1120-IN000-MSP-0501) and [UoW](https://usosweb.uw.edu.pl/kontroler.php?_action=katalog2/przedmioty/pokazPrzedmiot&kod=1000-1M18WUM). Summer semester 2019/2020
 
 # Wprowadzenie
 
