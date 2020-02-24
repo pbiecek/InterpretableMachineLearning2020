@@ -15,25 +15,42 @@ I believe that one of the most important skills in building ML/XAI models is fle
 
 Meeting plan for the summer semester 2019/2020. WUT classes are on Thursdays, UoW classes are on Fridays.
 
-* 2020-02-27/28 
-* 2020-03-05/06 
-* 2020-03-12/13  [first meeting: groups are assembles]
-* 2020-03-19/20 
-* 2020-03-26/27 
-* 2020-04-02/03  [first version of the solution]
-* 2020-04-09
-* 2020-04-16/17 
-* 2020-04-23/24  [second version of the solution]
-* 2020-04-30 
-* 2020-05-07 
-* 2020-05-14/15 
-* 2020-05-21/22 
-* 2020-05-28/29 
-* 2020-06-04/05 [final version of the solution]
+* 2020-02-27/28 -- Introduction
+* 2020-03-05/06 --  Break Down / SHAP
+* 2020-03-12/13 --   [XAI stories: first meeting, groups are assembles]
+* 2020-03-19/20 --  LIME
+* 2020-03-26/27 --  Ceteris Paribus profiles / Partial Dependence profiles
+* 2020-04-02/03 --   [XAI stories: first version of the solution]
+* 2020-04-09 --  TBA
+* 2020-04-16/17 --  Variables importance
+* 2020-04-23/24 --   [XAI stories: second version of the solution]
+* 2020-04-30 --  TBA
+* 2020-05-07 --  TBA
+* 2020-05-14/15 --  Model diagnostic plots
+* 2020-05-21/22 --  students presentations
+* 2020-05-28/29 --  students presentations
+* 2020-06-04/05 --  [XAI stories: final version of the solution]
 
-# Credit rules
+# How to get a good grade
 
-The credit will be based on points. You can get from 0 to 100 points. 51 points are needed to pass the course.
+From different activities you can get from 0 to 100 points. 51 points are needed to pass this course.
+There are three key components.
+
+Chapter in the 'XAI stories' [0-60 points]
+ - quality of trained predictive models [0-10 points]
+ - quality of dataset level explanations [0-10 points]
+ - quality of instance level explanations [0-10 points]
+ - quality of the charts/visuals/diagrams [0-10 points]
+ - the relevance of the example [0-10 points]
+ - presentation of key results during the final meeting [0-10 points]
+
+Presentation of a selected XAI related article [0-10 points]
+
+Home works [0-20 points]
+ - home work 1 [0-5 points]
+ - home work 2 [0-5 points]
+ - home work 3 [0-5 points]
+ - home work 4 [0-5 points]
 
 
 # Projects
