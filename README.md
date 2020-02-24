@@ -4,6 +4,8 @@ Lecture notes for 'Interpretable Machine Learning' at [WUT](https://usosweb.usos
 
 This document: http://tiny.cc/IML2020
 
+Slack for this course: http://iml2020workspace.slack.com
+
 # Introduction
 
 The course consists of a lecture, computer laboratory and project.
