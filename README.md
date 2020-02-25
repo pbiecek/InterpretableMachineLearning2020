@@ -48,11 +48,13 @@ Chapter in the 'XAI stories' [0-60 points]
 
 Presentation of a selected XAI related article [0-10 points]
 
-Home works [0-20 points]
+Home works [0-30 points]
  - home work 1 [0-5 points]
  - home work 2 [0-5 points]
  - home work 3 [0-5 points]
  - home work 4 [0-5 points]
+ - home work 5 [0-5 points]
+ - home work 6 [0-5 points]
 
 
 # Projects
