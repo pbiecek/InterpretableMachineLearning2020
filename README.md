@@ -49,7 +49,7 @@ Chapter in the 'XAI stories' [0-60 points]
 Presentation of a selected XAI related article [0-10 points]
 
 Home works [0-30 points]
- - home work 1 [0-5 points]
+ - home work 1 [0-5 points]: Train a predictive model for selected ML problem (see issues). Submit knitr/notebook script to GitHub (directory Homeworks/H1/FirstnameLastname). **Deadline: 2020-03-12**
  - home work 2 [0-5 points]
  - home work 3 [0-5 points]
  - home work 4 [0-5 points]
