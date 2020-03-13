@@ -79,6 +79,16 @@ The project ends with a small article prepared in English and a short presentati
 
 See [Limitations of Interpretable Machine Learning Methods](https://compstat-lmu.github.io/iml_methods_limitations/) as an example to follow. During this course we are going to gather a number of use-cases/success stories for explainable machine learning.
 
+## Phase 1
+
+After the first meeting, each group should:
+
+- know what problem they'll be working on,
+- know how to communicate with every team member (own slack channel, something else?)
+- initially share/distribute work on (1) finding similar solutions in literature, (2) generating models, (3) generating explanations, (4) describing models and explanations, 
+- establish an internal work schedule for the next meeting (already in 3 weeks).
+
+
 # Literature
 
 Literature will be added on an ongoing basis. 
