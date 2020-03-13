@@ -13,6 +13,16 @@ The course consists of a lecture, computer laboratory and project.
 The course is elective. The rules of passing may seem non-standard. Make sure that you understand them to avoid unpleasant consequences.
 I believe that one of the most important skills in building ML/XAI models is flexibility and a proactive approach to the problem. In this course the assessment criteria will strongly reward both flexibility and a proactive approach.
 
+# Design Principles
+
+The design of this course is based on four principles:
+
+- Mixing experiences during studies is good. It allows you to generate more ideas. Also, in mixed groups we can also improve our communication skills,
+- In XAI, the interface/esthetic of the solution is important. XAI, like earlier HCI (Human Computer Interaction) is on the borderline between technical, domain and cognitive aspects. Therefore, apart from the purely technical descriptions, it is important that the results are grounded in the domain and are communicated in an aesthetic and legible way, 
+- communication of results is important. Both in science and business, it is very important to be able to present the results in a concise and legible way. In this course it should translate into the ability to describe one XAI story in the form of a short chapter/article.
+- It is worth doing useful things. Let's look for new applications for XAI methods discussed on typical predictive problems.
+
+
 # Meetings
 
 Meeting plan for the summer semester 2019/2020. WUT classes are on Thursdays, UoW classes are on Fridays.
