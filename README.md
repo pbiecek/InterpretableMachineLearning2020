@@ -6,6 +6,8 @@ This document: http://tiny.cc/IML2020
 
 Slack for this course: http://iml2020workspace.slack.com
 
+XAI stories ebook: https://github.com/pbiecek/xai_stories
+
 # Introduction
 
 The course consists of a lecture, computer laboratory and project.
