@@ -1,0 +1,170 @@
+---
+title: "Wyjaśnialne Uczenie Maszynowe - Praca domowa 1"
+author: "Anna Kozak"
+output:
+  pdf_document:
+    highlight: kate
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(lubridate)
+library(gridExtra)
+library(splitTools)
+library(randomForest)
+library(pROC)
+library(ROCR)
+require(PRROC)
+```
+
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+
+readRDS("dane_pluca.rds") -> dane
+
+tmp <- dane[, c("P.Data.urodzenia", "F1.Data.rozpoczęcia.leczenia", "F4.Data.operacji", "F10.żyje", "P.Płeć", "F5.Wymiar.guza.X", "F5.Wymiar.guza.Y", "F5.Wymiar.guza.Z", "F2.Wstępne.rozpoznanie.histopatologiczne", "F1.Ile.lat.pali", "F1.Rodzice.nowotwory.płuc", "F2.Objawy.choroby.ból", "F5.Stadium..uicc.2017.")]
+
+names(tmp) <- c("data.urodzenia", "data.rozpoczecia.leczenia", "data.operacji", "zyje", "plec", "wymiar.guza.x", "wymiar.guza.y", "wymiar.guza.z", "rozpozananie.histopatologiczne", "ile.lat.pali", "rodzine.nowotwory.pluc", "objawy.choroby.bol", "stadium.uicc")
+
+tmp$data.urodzenia <- as.Date(tmp$data.urodzenia)
+tmp$data.rozpoczecia.leczenia <- as.Date(tmp$data.rozpoczecia.leczenia)
+tmp$data.operacji <- as.Date(tmp$data.operacji)
+
+#wiek, w którym rozpoznano (rok)
+tmp$rozpoznanie.wiek <- year(tmp$data.rozpoczecia.leczenia) - year(tmp$data.urodzenia)
+#liczba lat oczekiwania do operacji
+tmp$czas.do.operacji <- year(tmp$data.operacji) - year(tmp$data.rozpoczecia.leczenia)
+#skalowanie wymiarów guza z mm do cm
+tmp$wymiar.guza.x <- tmp$wymiar.guza.x/10
+tmp$wymiar.guza.y <- tmp$wymiar.guza.y/10
+tmp$wymiar.guza.z <- tmp$wymiar.guza.z/10
+#ograniczenie obserwacji do rozmiarów guza do 12 cm, wiedza ekspercka 
+tmp1 <- tmp[-which(tmp$wymiar.guza.x >12), ]
+tmp2 <- tmp1[-which(tmp1$wymiar.guza.y >12),]
+tmp3 <- tmp2[-which(tmp2$wymiar.guza.z > 12),]
+#wiek rozpoznania nie może być ujemny
+tmp4 <- tmp3[-which(tmp3$rozpoznanie.wiek < 0),]
+#czas do operacji nie może być ujemny
+tmp5 <- tmp4[-which(tmp4$czas.do.operacji < 0),]
+#liczba lat palenie nie może przekroczyć wieku rozpoznania choroby
+tmp6 <- tmp5[-which(tmp5$ile.lat.pali > tmp5$rozpoznanie.wiek),]
+data <- na.omit(tmp6)
+data <- data[, -c(1:3)]
+```
+## Zadanie 
+
+Zbudować model predykcyjny dla wybranego problemu. 
+
+## Wybrany zbiór danych oraz kilka słów o nim
+
+Do wykonania pracy domowej wybrano zbiór danych odpowiadający szansom przeżycia po operacji nowotworu płuca w polskiej populacji. Jest to zbiór danych z 30 tyś. obserwacji oraz 14 zmiennymi. Dane oczyszczono z braków danych oraz z wartości wyraźnie odstających. Do modelowania wykorzystano ostatecznie 12 zmiennych, m.in. informację o płci, wymiarze guza, stadium choroby oraz wieku pacjenta w roku rozpoznania i czasie oczekiwania na operację (w latach).
+
+
+```{r, include=TRUE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+
+wyk1 <- ggplot(data, aes(x = wymiar.guza.x)) + geom_histogram(bins = 50, fill = "#371ea3", color = "#371ea3") + theme_bw() + labs(title = "Histogram dla zmiennej wymiar.guza.x", y = "Count", x = "Wymiar guza [cm]") + theme(title = element_text(size = 8))
+wyk2 <- ggplot(data, aes(x = wymiar.guza.y)) + geom_histogram(bins = 50, fill = "#371ea3", color = "#371ea3") + theme_bw() + labs(title = "Histogram dla zmiennej wymiar.guza.y", y = "Count", x = "Wymiar guza [cm]") + theme(title = element_text(size = 8))
+wyk3 <- ggplot(data, aes(x = wymiar.guza.z)) + geom_histogram(bins = 50, fill = "#371ea3", color = "#371ea3") + theme_bw() + labs(title = "Histogram dla zmiennej wymiar.guza.z", y = "Count", x = "Wymiar guza [cm]") + theme(title = element_text(size = 8))
+wyk4 <- ggplot(data, aes(x = ile.lat.pali)) + geom_histogram(bins = 50, fill = "#371ea3", color = "#371ea3") + theme_bw() + labs(title = "Histogram dla zmiennej ile.lat.pali", y = "Count", x = "Liczba lat") + theme(title = element_text(size = 8))
+grid.arrange(wyk1, wyk2, wyk3, wyk4)
+
+```
+
+Zmienna objaśniania (*zyje*) przyjmuje dwie katergie: TAK i NIE. Poniżej wykresy ukazujące podział zmiennych *zyje* oraz *plec*. Klasy dzielą się w stosunku 0.41:0.59. 
+
+```{r, include=TRUE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+wyk5 <- ggplot(data, aes(x = zyje)) + geom_bar(fill = "#371ea3", color = "#371ea3") + theme_bw() + labs(title = "Zmienna zyje", y = "Count", x = "Czy żyje") + theme(title = element_text(size = 8))
+wyk6 <- ggplot(data, aes(x = plec)) + geom_bar(fill = "#371ea3", color = "#371ea3") + theme_bw() + labs(title = "Zmienna plec", y = "Count", x = "Płeć") + theme(title = element_text(size = 8))
+wyk7 <- ggplot(data, aes(x = zyje, fill = plec)) + geom_bar(position = "dodge") + scale_fill_manual(values = c("#371ea3", "#9b88e9")) + theme_bw() + theme(title = element_text(size = 8)) + labs(x = "Czy żyje?", y = "Count", fill = "Płeć", title = "Udział płci względem zmiennej zyje")
+grid.arrange(wyk5, wyk6, wyk7, ncol = 3, widths = c(1,1:2))
+
+```
+
+## Model predykcyjny 
+
+Na podstawie tak przygotowanych danych zbudowano dwa modele:
+
+- regresję logistyczną (glm)
+
+- las losowy (random forest).
+
+Jeden z modeli to regresja, czyli model interpretowalny, natomiast drugi z nich to las losowy czyli przykład modelu "czarnej szkrzynki" (*black box*).
+
+
+Podział zbioru na treningowy oraz testowy w proporcji 2:1.
+```{r, eval=FALSE}
+inds <- partition(data$zyje, c(train = 0.65, test = 0.35), seed = 21)
+train <- data[inds$train, ]
+test <- data[inds$test, ]
+```
+
+### Model *glm*
+
+Budowa modelu regresji logistycznej. Do oceny predykcji wykorzystano miarę AUC (Area Under ROC Curve) oraz AURPC (Area under the PR curve)
+```{r}
+#model
+model <- glm(zyje == "TAK" ~., data = train)
+#predykcja 
+pred_model_test <- predict(model, newdata = test, type = "response")
+```
+
+```{r}
+score_0 <- pred_model_test[test$zyje == "TAK"]
+score_1 <- pred_model_test[test$zyje == "NIE"]
+
+# ROC Curve    
+roc <- roc.curve(scores.class0 = score_0, scores.class1 = score_1, curve = TRUE)
+roc$auc
+
+# PR Curve
+pr <- pr.curve(scores.class0 = score_0, scores.class1 = score_1, curve = TRUE)
+pr$auc.integral
+```
+
+```{r, include=TRUE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+roc_score <- data.frame(roc$curve)
+wyk_8 <- ggplot(roc_score, aes(x = X1, y = X2)) + geom_point(color = "#371ea3", size = 0.5) + theme_bw() + labs(title = "Krzywa ROC", y = "Czułość", x = "1 - specyficzność") + theme(title = element_text(size = 8))
+pr_score <- data.frame(pr$curve)
+wyk_9 <- ggplot(pr_score, aes(x = X1, y = X2)) + geom_point(color = "#371ea3", size = 0.5) + geom_line(color = "#371ea3") + theme_bw() + labs(title = "Krzywa PR", y = "Precyzja", x = "Czułość") + theme(title = element_text(size = 8)) + scale_y_continuous(limits = c(0,1))
+grid.arrange(wyk_8, wyk_9, ncol = 2)
+```
+
+
+### Model *randomForest*
+
+Budowa modelu lasu losowego z pakietu `randomForest`. Do oceny predykcji wykorzystano miarę AUC (Area Under ROC Curve) oraz AURPC (Area under the PR curve)
+```{r}
+#model
+model <- randomForest(zyje ~., data = train)
+#predykcja 
+pred_model_test <- predict(model, newdata = test, type = "prob")[,2]
+```
+
+```{r}
+score_0 <- pred_model_test[test$zyje == "TAK"]
+score_1 <- pred_model_test[test$zyje == "NIE"]
+
+# ROC Curve    
+roc <- roc.curve(scores.class0 = score_0, scores.class1 = score_1, curve = TRUE)
+roc$auc
+
+# PR Curve
+pr <- pr.curve(scores.class0 = score_0, scores.class1 = score_1, curve = TRUE)
+pr$auc.integral
+```
+
+```{r, include=TRUE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+roc_score <- data.frame(roc$curve)
+wyk_10 <- ggplot(roc_score, aes(x = X1, y = X2)) + geom_point(color = "#371ea3", size = 0.5) + theme_bw() + labs(title = "Krzywa ROC", y = "Czułość", x = "1 - specyficzność") + theme(title = element_text(size = 8))
+pr_score <- data.frame(pr$curve)
+wyk_11 <- ggplot(pr_score, aes(x = X1, y = X2)) + geom_point(color = "#371ea3", size = 0.5) + geom_line(color = "#371ea3") + theme_bw() + labs(title = "Krzywa PR", y = "Precyzja", x = "Czułość") + theme(title = element_text(size = 8)) + scale_y_continuous(limits = c(0,1))
+grid.arrange(wyk_10, wyk_11, ncol = 2)
+```
+
+## Podsumowanie 
+
+Na zbiorze danych o nowotworze płuc przeprowadzono analizę danych, następnie na podstawie wiedzy eksperckiej oczyszczono dane z błędnych wartości. Podzielono dane, zbudowano dwa modele, interpretowalny regresji logistycznej oraz model lasu losowego. Uzyskane wyniki zmierzono miarą AUC oraz AUPRC, w obu przypadkach model regresji logustycznej miał niewielką przewagę. 
