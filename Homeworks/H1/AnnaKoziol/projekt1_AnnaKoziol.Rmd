@@ -1,0 +1,107 @@
+---
+title: "projekt nr 1"
+author: "Anna Kozioł"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+```{r , include=FALSE}
+library(corrplot)
+library(randomForest)
+library(caret)
+```
+
+## Cel
+
+Celem projektu jest analiza jednego wybranego spośród zaproponowanych zbioru danych oraz wykonanie zadania predykcji lub klasyfikacji.
+Niniejszy projekt dotyczy zbioru Mushroom. 
+
+## Wstępna analiza
+
+```{r }
+dane <- read.csv("mushrooms.csv", sep = ",")
+```
+* zbiór składa się z 8124 obserwacji oraz 21 zmiennych objaśniających zmienną mówiącą czy grzyb można uznać za trujący lub nie( cass).
+```{r,echo=FALSE}
+str(dane)
+```
+
+* Wszystkie zmienne są kategoryczne, najwięcej poziomów posiada zmienna gill.color , z kolei zmienna veil.type  przyjmuje stale jedną wartość, z tego powodu zostaje wykluczona z dalszej analizy. 
+* Zmienna stalk.root przyjmuje wartość równą "?" co  może reprezentowaać brak danych, poza tym przypadkiem nie ma innych braków danych w zbiorze.
+* zmienna objaśniana- class, jest zrównoważona (dla każdejgo poziomu jest podobna ilość obserwacji)
+
+```{r}
+table(dane$class)
+```
+* Ponieważ mamy do czynienia ze zmiennymi kategorycznymi, jako miarę zależności miedzy zmiennymi można przyjąć tau  Godmana-Kruskala .  Wartości w komórkach określają miarę tau zależności  zmiennej  w wierszu do tej w kolumnie.Liczby na diagonali wykresu przedstawiają liczbę poziomów zmiennej. Najciekawszym wynikiem wizualizacji jest bardzo duży współczynnik tau 0.94 sugerujący, że znajomość zmiennej odor (zapach) w bardzo dużym stopniu wpływa na znajomość  zmiennej class.
+W drugą stronę związek zachodzi ale jest wiele słabszy, znając zmiennaą class jesteśmy w stanie w małym stopniu przewidzieć zapach (t = 0.34).  
+
+```{r , echo=FALSE, message=FALSE, include=FALSE}
+library(GoodmanKruskal)
+```
+
+
+```{r , echo=FALSE}
+varset1<- c("cap.shape","cap.surface","habitat","gill.size" ,"gill.color", "odor","class")
+mushroomFrame1<- subset(dane, select = varset1)
+GKmatrix1<- GKtauDataframe(mushroomFrame1)
+plot(GKmatrix1, corrColors = "blue")
+```
+
+## Model
+
+Ponieważ las losowy dobre radzi sobie z brakami danych w zbiorze, oraz implementacja z pakietu randomForest nie wymaga stosowania one hot encoding, ostatecznym modelem z testowanych wybranym do klasyfikacji jest model lasu losowego z parametrem ntree = 100.
+
+```{r}
+dane <- dane[, -which(names(dane) == "veil.type")]
+#podzial na trening i test 
+smp_size <- floor(0.70 * nrow(dane))
+train_ind <- sample(seq_len(nrow(dane)), size = smp_size)
+train <- dane[train_ind, ]
+test <- dane[-train_ind, ]
+
+rf = randomForest(class ~ .,
+                  ntree = 100,
+                  data = train)
+```
+
+Jakość modelu przedstawia wydruk:
+
+```{r}
+
+predykcja= predict(rf , test)
+confusionMatrix(table(test$class,predykcja))
+
+```
+
+Klasyfikator okazał się być perfekcyjny. Wskazuje na to zarówno AUC jak i zerowy błąd predykcji. Sprawdźmy jakie zmienne miały największy wpływ na wynik klasyfikacji.
+
+
+```{r , echo=FALSE}
+varImpPlot(rf,type=2)
+
+
+```
+
+Zgodnie z poprzednią analizą zmienna odor (zapach) znacznie wpływa na wyniki modelu. Kolejnymi zmiennymi okazały się spore.print.color, gill.color.
+
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
+
+```{r, echo=FALSE}
+
+```
+
