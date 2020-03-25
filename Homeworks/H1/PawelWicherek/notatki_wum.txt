@@ -1,0 +1,4 @@
+wymyślić, gdzie te techniki mają sens, gdzie nie mają sensu.
+
+
+Fork → upload file → pull request

@@ -1,0 +1,322 @@
+---
+title: "COVID19 Mortality rate prediction. IML '20 Homework 1."
+author: "Łukasz Grad"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(glmnet)
+
+theme_set(theme_economist())
+```
+
+Read and show raw data.
+
+```{r, include=F}
+covid_hubei = read_csv('data/COVID19_2020_open_line_list_Hubei.csv')
+covid_outside = read_csv('data/COVID19_2020_open_line_list_outside_Hubei.csv')
+```
+
+```{r}
+common_cols = intersect(colnames(covid_hubei), colnames(covid_outside))
+covid = covid_hubei %>% 
+    mutate(admin_id = as.character(admin_id)) %>%
+    bind_rows(covid_outside) %>%
+    select(common_cols)
+covid %>% head
+```
+
+We have a lot of missing values and data in general is messy. The column of interest is "outcome"
+
+```{r}
+covid %>%
+    summarise_all(~ mean(is.na(.)))
+```
+
+We have 59 cases of confirmed deaths.
+
+```{r}
+death_vals = c('death', 'died')
+covid %>% filter(outcome %in% death_vals)
+```
+
+```{r, include=F}
+clean_string <- function(string){
+    temp <- tolower(string)
+    temp <- stringr::str_replace_all(temp,"[^a-zA-Z\\s]", " ")
+    temp <- stringr::str_replace_all(temp,"[\\s]+", " ")
+    temp <- stringr::str_split(temp, " ")[[1]]
+    indexes <- which(temp == "")
+    if(length(indexes) > 0){
+      temp <- temp[-indexes]
+    } 
+    return(temp)
+}
+```
+
+Let's see the most common early symptoms
+
+```{r}
+symptoms_data = lapply(covid$symptoms, clean_string)
+symptoms_all = Reduce(c, symptoms_data)
+symptoms_all_sorted = sort(table(symptoms_all), decreasing = T)
+symptoms_all_sorted[1:15]
+```
+
+Prepare clean dataset and show some plots
+
+```{r}
+frequent_countries = c('china')
+frequent_symptoms = c('pneumonia|pneumonitis', 'pain', 'fever', 
+                      'cough', 'sore throat', 'fatigue', 'headache', 'dyspnea')
+
+covid_train = covid %>%
+    mutate(
+        outcome = ifelse(outcome %in% death_vals, 'dead', 'recovered'),
+        country = ifelse(tolower(country) %in% frequent_countries, country, 'other'),
+        in_wuhan = !as.logical(`wuhan(0)_not_wuhan(1)`),
+        age = ifelse(str_detect(age, "[:digit:]{2}-[:digit:]{2}"),
+                     0.5 * as.numeric(str_sub(age, 1, 2)) + 0.5 * as.numeric(str_sub(age, 3, 4)),
+                     as.numeric(age)),
+        sex = tolower(sex),
+        chronic_disease = ifelse(is.na(chronic_disease_binary),
+                                'NA',
+                                as.character(chronic_disease_binary))
+    ) %>%
+    select(age, sex, country, chronic_disease, outcome, in_wuhan, symptoms) %>%
+    filter(!is.na(age)) %>%
+    filter(!is.na(sex))
+
+for (symptom in frequent_symptoms) {
+    covid_train[symptom] = str_detect(symptom, covid_train$symptoms)
+    covid_train[symptom][is.na(covid_train[symptom])] = F
+}
+
+covid_train = covid_train %>% select(-symptoms)
+
+covid_train %>% head
+```
+
+China has more deaths, age is heavily influencing mortality rate.
+
+```{r}
+p1 = covid_train %>%
+    ggplot(aes(outcome, fill = country)) +
+    geom_bar(position = 'dodge') +
+    scale_fill_economist() +
+    coord_flip()
+
+p2 = covid_train %>%
+    ggplot(aes(outcome, age)) +
+    geom_boxplot()
+
+grid.arrange(p1, p2, nrow = 1)
+```
+
+Chronic disease is critical for the outcome, but data may be biased. It is also heavily correlated with age.
+
+```{r}
+covid_train %>%
+    mutate(chronic_disease_known = as.factor(chronic_disease == '1')) %>%
+    ggplot(aes(age, as.numeric(outcome == 'dead'), colour = chronic_disease_known)) +
+    geom_smooth(method = 'loess') +
+    scale_color_economist() +
+    ylab('Mortality rate')
+```
+
+```{r}
+covid_train %>%
+    ggplot(aes(chronic_disease, fill = outcome)) +
+    geom_bar(position = 'dodge') +
+    scale_fill_economist() +
+    scale_y_log10()
+```
+
+```{r}
+covid_train %>%
+    ggplot(aes(age, fill = chronic_disease)) +
+    geom_histogram(stat = 'density', position = 'identity', alpha = 0.5) +
+    scale_fill_economist()
+```
+
+We have very little data about dead patients with early symptoms
+
+```{r}
+covid_train %>%
+    summarise_at(.vars = frequent_symptoms, 
+                 list(mort = ~sum((outcome == 'dead') * (.))/sum(.), sum = ~sum(.)))
+```
+
+```{r, include=F}
+covid_train = covid_train %>% select(-in_wuhan)
+covid_train = covid_train[sample(1:nrow(covid_train), size = nrow(covid_train), replace = F),]
+```
+
+Create simple dataset split and fit Logistic Lasso with CV
+
+```{r}
+covid_train = covid_train %>%
+    mutate_if(is.character, as.factor)
+
+train_mask = caret::createDataPartition(covid_train$outcome, p = 0.66)[[1]]
+data_train = covid_train[train_mask,]
+data_valid = covid_train[-train_mask,]
+
+xlevs_train = data_train %>% select(-outcome)
+xlevs <- lapply(xlevs_train[,sapply(xlevs_train, is.factor), drop = F], function(j){
+    levels(j)
+})
+```
+
+```{r}
+pos = function(x, s, u = NULL) {
+    x = ifelse(x > s, x - s, 0)
+    if (!is.null(u))
+        x = ifelse(x > (u - s), u - s, x)
+    x
+}
+
+dtrain = model.matrix(~ age + pos(age, 50) - 1 + ., 
+                      data = data_train %>% select(-outcome))
+dvalid = model.matrix(~ age + pos(age, 50) - 1 + ., 
+                      data = data_valid %>% select(-outcome))
+cv_glmnet = cv.glmnet(dtrain, data_train$outcome == 'dead', family = 'binomial', nfolds = 10, 
+                   type.measure = 'deviance', keep = TRUE)
+plot(cv_glmnet)
+```
+
+Coefficients for best model
+
+```{r}
+best_ind = which(cv_glmnet$lambda == cv_glmnet$lambda.min)
+beta = cv_glmnet$glmnet.fit$beta[, best_ind]
+beta
+```
+
+Train 2 more GLM models with selected features
+
+```{r}
+lrm = glm(outcome == 'dead' ~ age + sex + country +
+                              fever +I((chronic_disease == '1')),
+          family = 'binomial', data = data_train)
+lrm_simple = glm(outcome == 'dead' ~ age + sex + country + fever,
+                 family = 'binomial', data = data_train)
+
+summary(lrm)
+summary(lrm_simple)
+```
+
+```{r, include=F}
+pred_data = tibble(y = data_valid$outcome == 'dead', 
+       pred_link = predict(cv_glmnet, dvalid, type='link', s = 'lambda.min'),
+       pred = predict(cv_glmnet, dvalid, type='response', s = 'lambda.min'))
+pred_data %>%
+    ggplot(aes(pred, fill = y)) +
+    geom_histogram(stat = 'density', alpha = 0.5) + 
+    xlim(0, 1)
+```
+
+```{r, include=F}
+sigmoid = function(x) 1 / (1 + exp(x))
+logit = function(x) log(x / (1 - x))
+
+th = sigmoid(1) * 100
+th
+```
+
+Use DALEX library to create explainers :-) and show validation metrics - cutoff selected manually, but it's not that important. 
+
+```{r, include=F}
+th = 25
+
+lrm_explain = DALEX::explain(lrm, data = data_valid %>% select(-outcome), 
+                             y = data_valid$outcome == 'dead', 
+                             type = 'classification', label = 'GLM', 
+                             predict_function = function(m, d) yhat(m, d) * 100)
+lrm_simple_explain = DALEX::explain(lrm_simple, data = data_valid %>% select(-outcome),
+                                    y = data_valid$outcome == 'dead', 
+                                    type = 'classification', label = 'Simple GLM',
+                                    predict_function = function(m, d) yhat(m, d) * 100)
+
+glmnet_predict = function(model, data) {
+    data = model.matrix(~ age + pos(age, 50) - 1 + ., data = data, xlev = xlevs)
+    predict(model, data, type = 'response', s = 'lambda.min')[, 1] * 100
+}
+
+cv_glmnet_explain = DALEX::explain(cv_glmnet, data = data_valid %>% select(-outcome),
+                                    y = data_valid$outcome == 'dead', 
+                                    type = 'classification', label = 'GLMNET',
+                                    predict_function = glmnet_predict)
+```
+
+GLMNET and GLM model with chronic_disease feature have comparable fit. We will use GLM to present explanations
+
+```{r}
+lrm_perf = DALEX::model_performance(lrm_explain, cutoff = th)
+lrm_simple_perf = DALEX::model_performance(lrm_simple_explain, cutoff = th)
+cv_glmnet_perf = DALEX::model_performance(cv_glmnet_explain, cutoff = th)
+lrm_perf
+lrm_simple_perf
+cv_glmnet_perf
+```
+
+```{r}
+p1 <- plot(lrm_perf, lrm_simple_perf, cv_glmnet_perf, geom = "roc")
+p2 <- plot(lrm_perf, lrm_simple_perf, cv_glmnet_perf, geom = "lift")
+
+library(patchwork)
+p1 + p2
+```
+
+Present BreakDown with interactions for manually created cases.
+
+```{r, include=F}
+par(mfrow = c(2, 2))
+
+explain_data = tibble(
+    age = c(5, 15, 30, 45, 50, 55, 60, 65, 70, 75, 80, 85),
+    country = c('China', 'other', 'China', 'other', 
+                'China', 'other', 'China', 'other', 'China',
+                'other', 'China', 'other'),
+    sex = c('male', 'male', 'female', 'female', 'male', 'male', 
+            'female', 'female', 'male', 'male', 'female', 'female'),
+    chronic_disease = c('0', '0', '1', '0', '0', '1', '0', '0', '1', '0', '1', '0'),
+    fever = c(F, T, F, T, F, T, F, T, F, T, F, F)
+)
+dexplain = model.matrix(~ age + sex + country + pos(age, 50) - 1, 
+                        data = explain_data)
+
+lrm_exs = list()
+ps = list()
+for (i in 1:nrow(explain_data)) {
+    lrm_exs[[i]] = DALEX::variable_attribution(lrm_explain, 
+                                               new_observation = explain_data[i, ], 
+                                               type = 'break_down_interactions')
+    ps[[i]] = plot(lrm_exs[[i]])
+    if (i == 1) {
+        ps[[i]] = ps[[i]] + ggtitle('Mortality rate COVID 19')
+    }
+    ps[[i]] = ps[[i]] + scale_y_continuous(expand = expand_scale(c(0, 0.4)), name = NULL)
+    ps[[i]]$data$right_side = pmax(ps[[i]]$data$prev, ps[[i]]$data$cumulative)
+    ps[[i]]$data$pretty_text = paste(ps[[i]]$data$pretty_text, '%')
+}
+```
+
+```{r}
+explain_data
+```
+
+```{r, fig.height=12, fig.width=10}
+grid.arrange(ps[[1]], ps[[2]], ps[[3]], ps[[4]],
+             ps[[5]], ps[[6]], ps[[7]], ps[[8]],
+             ps[[9]], ps[[10]], ps[[11]], ps[[12]], nrow = 4)
+```
