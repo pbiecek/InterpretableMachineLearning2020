@@ -1,0 +1,351 @@
+---
+title: "COVID19 Mortality rate prediction. IML '20 Homework 2."
+author: "Łukasz Grad"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(glmnet)
+library(randomForest)
+library(xgboost)
+library(splines)
+
+theme_set(theme_economist())
+```
+
+Read and show raw data.
+
+```{r, include=F}
+covid = read_csv('data/latestdata.csv')
+```
+
+```{r}
+covid %>% head()
+```
+
+We have a lot of missing values and data in general is messy. The column of interest is "outcome"
+
+```{r}
+covid %>%
+    summarise_all(~ mean(is.na(.)))
+```
+
+We have 99 cases of confirmed deaths.
+
+```{r}
+# A tiny bit of cheating to increase positive sample size
+death_vals = c('death', 'died',
+               'treated in an intensive care unit (14.02.2020)',
+               'critical condition, intubated as of 14.02.2020')
+covid %>% filter(outcome %in% death_vals)
+```
+
+```{r, include=F}
+clean_string <- function(string){
+    temp <- tolower(string)
+    temp <- stringr::str_replace_all(temp,"[^a-zA-Z\\s]", " ")
+    temp <- stringr::str_replace_all(temp,"[\\s]+", " ")
+    temp <- stringr::str_split(temp, " ")[[1]]
+    indexes <- which(temp == "")
+    if(length(indexes) > 0){
+      temp <- temp[-indexes]
+    } 
+    return(temp)
+}
+```
+
+Let's see the most common early symptoms
+
+```{r}
+symptoms_data = lapply(covid$symptoms, clean_string)
+symptoms_all = Reduce(c, symptoms_data)
+symptoms_all_sorted = sort(table(symptoms_all), decreasing = T)
+symptoms_all_sorted[1:15]
+```
+
+Prepare clean dataset.
+
+```{r}
+frequent_countries = c('china', 'united states')
+frequent_symptoms = c('pneumonia|pneumonitis', 'pain', 'fever', 
+                      'cough', 'sore throat', 'fatigue', 'headache', 'dyspnea')
+
+covid_train = covid %>%
+    mutate(
+        outcome = ifelse(outcome %in% death_vals, 'dead', 'recovered'),
+        country = ifelse(tolower(country) %in% frequent_countries, country, 'other'),
+        in_wuhan = !as.logical(`wuhan(0)_not_wuhan(1)`),
+        age = ifelse(str_detect(age, "[:digit:]{2}-[:digit:]{2}"),
+                     0.5 * as.numeric(str_sub(age, 1, 2)) + 0.5 * as.numeric(str_sub(age, 3, 4)),
+                     as.numeric(age)),
+        sex = tolower(sex),
+        chronic_disease = ifelse(is.na(chronic_disease_binary),
+                                 'NA',
+                                 ifelse(chronic_disease_binary == '1', '1', '0'))
+    ) %>%
+    select(age, sex, country, chronic_disease, outcome, in_wuhan, symptoms) %>%
+    filter(!is.na(age)) %>%
+    filter(!is.na(sex))
+
+for (symptom in frequent_symptoms) {
+    covid_train[symptom] = str_detect(symptom, covid_train$symptoms)
+    covid_train[symptom][is.na(covid_train[symptom])] = F
+}
+
+covid_train = covid_train %>% select(-symptoms)
+
+covid_train %>% head
+```
+
+We have very little data about dead patients with early symptoms
+
+```{r}
+covid_train %>%
+    summarise_at(.vars = frequent_symptoms, 
+                 list(mort = ~sum((outcome == 'dead') * (.))/sum(.), sum = ~sum(.)))
+```
+
+```{r, include=F}
+set.seed(1)
+covid_train = covid_train %>% select(-in_wuhan)
+covid_train = covid_train[sample(1:nrow(covid_train), size = nrow(covid_train), replace = F, ),]
+```
+
+6a) Train a second model (of any class, neural nets, linear, other boosting) 
+
+Create simple dataset split and fit Logistic Lasso with CV
+
+```{r}
+covid_train = covid_train %>%
+    mutate_if(is.character, as.factor)
+
+train_mask = caret::createDataPartition(covid_train$outcome, p = 0.7)[[1]]
+data_train = covid_train[train_mask,]
+data_valid = covid_train[-train_mask,]
+
+xlevs_train = data_train %>% select(-outcome)
+xlevs <- lapply(xlevs_train[,sapply(xlevs_train, is.factor), drop = F], function(j){
+    levels(j)
+})
+```
+
+```{r}
+pos = function(x, s, u = NULL) {
+    x = ifelse(x > s, x - s, 0)
+    if (!is.null(u))
+        x = ifelse(x > (u - s), u - s, x)
+    x
+}
+
+dtrain = model.matrix(~ age + pos(age, 50) + . - 1, 
+                      data = data_train %>% select(-outcome))
+dvalid = model.matrix(~ age + pos(age, 50) +  . - 1,
+                      data = data_valid %>% select(-outcome))
+cv_glmnet = cv.glmnet(dtrain, data_train$outcome == 'dead', family = 'binomial', nfolds = 5, 
+                   type.measure = 'deviance', keep = TRUE)
+plot(cv_glmnet)
+```
+
+Coefficients for best model
+
+```{r}
+best_ind = which(cv_glmnet$lambda == cv_glmnet$lambda.min)
+beta = cv_glmnet$glmnet.fit$beta[, best_ind]
+beta
+```
+
+Log-odds histogram for Logistic Lasso on validation data
+
+```{r}
+pred_data = tibble(y = data_valid$outcome == 'dead', 
+       pred_link = predict(cv_glmnet, dvalid, type='link', s = 'lambda.min'),
+       pred = predict(cv_glmnet, dvalid, type='response', s = 'lambda.min'))
+pred_data %>%
+    ggplot(aes(pred_link, fill = y)) +
+    geom_histogram(stat = 'density', alpha = 0.5)
+```
+
+1. For the selected data set, train at least one tree-based ensemble model (random forest, gbm, catboost or any other boosting)
+
+Fit XGBoost model with monotonicity constraint for age with the same dataset as Logistic Lasso
+
+```{r}
+dtrain_xgb = xgb.DMatrix(dtrain, label = ifelse(data_train$outcome == 'dead', 1, 0))
+dvalid_xgb = xgb.DMatrix(dvalid, label = ifelse(data_valid$outcome == 'dead', 1, 0))
+
+params = list()
+params['monotone_constraints'] = '(1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)'
+watchlist <- list(train=dtrain_xgb, test=dvalid_xgb)
+bst  = xgb.train(params = params, data = dtrain_xgb, max_depth = 3, eta = 0.3, nrounds = 35, nthread = 2, 
+               objective = "binary:logistic", scale_pos_weight = 1, eval_metric = 'logloss',
+               watchlist = watchlist)
+```
+
+Log-odds histogram for XGBoost model on validation data
+
+```{r}
+logit <- function(x) log(x / (1 - x))
+
+pred_data = tibble(y = data_valid$outcome == 'dead', 
+       pred = predict(bst, dvalid_xgb, type='prob'))
+pred_data %>%
+    ggplot(aes(logit(pred), fill = y)) +
+    geom_histogram(stat = 'density', alpha = 0.5)
+```
+
+```{r, include=F}
+sigmoid = function(x) 1 / (1 + exp(x))
+logit = function(x) log(x / (1 - x))
+
+th = sigmoid(1) * 100
+th
+```
+
+Use DALEX library to create explainers :-) and show validation metrics - cutoff selected manually, but it's not that important. 
+
+```{r, include=F}
+th = 30
+
+xgb_predict = function(model, data) {
+    data = model.matrix(~ age + pos(age, 50) + . - 1, data = data, xlev = xlevs)
+    predict(model, data, type = 'prob') * 100
+}
+xgb_explain = DALEX::explain(bst, data = data_valid %>% select(-outcome),
+                             y = data_valid$outcome == 'dead', 
+                             type = 'classification', label = 'XGB',
+                             predict_function = xgb_predict)
+
+glmnet_predict = function(model, data) {
+    data = model.matrix(~ age + pos(age, 50) + . - 1, data = data, xlev = xlevs)
+    predict(model, data, type = 'response', s = 'lambda.min')[, 1] * 100
+}
+
+cv_glmnet_explain = DALEX::explain(cv_glmnet, data = data_valid %>% select(-outcome),
+                                    y = data_valid$outcome == 'dead', 
+                                    type = 'classification', label = 'GLMNET',
+                                    predict_function = glmnet_predict)
+```
+
+GLM and XGB have similar F1, but the threshold has not been optimized. 
+
+XGB looks slightly better on validation data under the AUC metric
+
+```{r}
+xgb_perf = DALEX::model_performance(xgb_explain, cutoff = th)
+cv_glmnet_perf = DALEX::model_performance(cv_glmnet_explain, cutoff = th)
+xgb_perf
+cv_glmnet_perf
+```
+
+```{r}
+p1 <- plot(cv_glmnet_perf, xgb_perf, geom = "roc")
+p2 <- plot(cv_glmnet_perf, xgb_perf, geom = "lift")
+
+library(patchwork)
+p1 + p2
+```
+
+2. for some selected observation from this dataset, calculate the model predictions for model (1)
+
+```{r}
+example = data_valid[12, ]
+example
+```
+
+```{r}
+xgb_predict(bst, example %>% select(-outcome))
+```
+
+XGB model predicts 3.88% mortality rate for a 52 year old woman from US, no knowledge on chronic diseases
+is present. The person recovered.
+
+3. for an observation selected in (2), calculate the decomposition of model prediction using SHAP, Break Down or both (packages for R: DALEX, iml, packages for python: shap, dalex, piBreakDown).
+
+```{r, include=F}
+plot_decomposition <- function(explainer, observation, type = 'break_down_interactions') {
+    ex = DALEX::variable_attribution(explainer, 
+                                     new_observation = observation, 
+                                     type = type)
+    p = plot(ex)
+    p = p + ggtitle('Mortality rate COVID 19')
+    if (type != 'shap') {
+        p = p + scale_y_continuous(expand = expand_scale(c(0, 0.4)), name = NULL)
+        p$data$right_side = pmax(p$data$prev, p$data$cumulative)
+        p$data$pretty_text = paste(p$data$pretty_text, '%')
+    }
+    p
+}
+```
+
+```{r}
+plot_decomposition(xgb_explain, example,type = 'break_down')
+```
+
+```{r}
+plot_decomposition(xgb_explain, example,type = 'shap')
+```
+
+Both SHAP and BreakDown select age and country as the most important variables for this example.
+
+The contribution of age in BreakDown method is slightly higher than in SHAP. Conversely, the contribution of country is higher in SHAP decomposition.
+
+4. find two observations in the data set, such that they have different most important variables (e.g. age and gender are the most important for observation A, but race and class for observation B)
+
+```{r}
+example2 = data_valid[8,]
+example3 = data_valid[333,]
+example3
+```
+
+```{r}
+plot_decomposition(xgb_explain, example2, type = 'break_down')
+plot_decomposition(xgb_explain, example3, type = 'break_down')
+```
+
+We can see that age is the most important variable in first example of a young, healthy person.
+In the second case, the presence of chronic disease increases mortality rate substantially, but its
+impact is mitigated by age and country.
+
+5. select one variable and find two observations in the data set such that for one observation this variable has a positive effect and for the other a negative effect
+
+```{r}
+example4 = data_valid[75, ]
+plot_decomposition(xgb_explain, example2, type = 'break_down')
+plot_decomposition(xgb_explain, example4, type = 'break_down')
+```
+
+We can see that age of 71 increases mortality rate in the second example. Age of 9 decreases the mortality 
+rate to almost 0%.
+
+This is in line with the common knowledge, that older people are a high risk group.
+
+
+6b) find an observation for which BD/shap attributions are different between the models
+
+```{r}
+plot_decomposition(xgb_explain, example, type = 'break_down')
+plot_decomposition(cv_glmnet_explain, example, type = 'break_down')
+```
+
+We can see that the prediction and variable attributions differ substantially. Sex has an increasing impact
+on mortality in XGB model, but negative in GLMNET model. Impact of age is also substantially lower in GLMNET 
+model. GLMNET also assigns small, but non-zero, importance to early symptoms whereas XGB ignores them.
+
+Age profiles for XGB and GLMNET models, we can see that the monotonicity constraint for age is working.
+
+```{r}
+prof = DALEX::individual_profile(xgb_explain, example)
+plot(prof, variables = 'age')
+prof = DALEX::individual_profile(cv_glmnet_explain, example)
+plot(prof, variables = 'age')
+```
+
