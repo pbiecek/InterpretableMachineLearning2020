@@ -14,3 +14,15 @@ TODO:
 3. train three or more candidate models (different variables, different transformations, different model structures) and compare ranking of important features between these models. Are they similar or different?
 4. Comment on the results for points (2) and (3)
 
+
+
+**Important note:**
+
+The submitted homework should be in html format (generated from a knitter/jupiter) and should consist of two parts. 
+
+The first part is the key results and comments from points 3-4. In this part **PLESE DO NOT SHOW ANY R/PYTHON CODES, RESULTS (IMAGES, COMMENTS) ONLY.**
+
+The second part should start with the word Appendix or Załącznik and should include the reproducible R/PYTHON code used to implement points 1-4.
+
+Such division 1. will make these homework more readable, 2. will create good habits related to reporting.
+
