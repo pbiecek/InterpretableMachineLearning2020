@@ -36,7 +36,7 @@ Plan for the summer semester 2019/2020. WUT classes are on Thursdays, UoW classe
 * 2020-03-19/20 -- LIME. [EMA chapter](https://pbiecek.github.io/ema/LIME.html), [paper lime](https://arxiv.org/abs/1602.04938)
 * 2020-03-26/27 -- Ceteris Paribus profiles / Partial Dependence profiles. [EMA chapter](https://pbiecek.github.io/ema/partialDependenceProfiles.html), [paper pdp/ale](https://cran.r-project.org/web/packages/ALEPlot/vignettes/AccumulatedLocalEffectPlot.pdf)
 * 2020-04-02/03 -- [XAI stories: first version of the solution]
-* 2020-04-09 --  TBA
+* 2020-04-08/09 --  Interactive Explanatory Model Analysis - how instance level methods complement each other
 * 2020-04-16/17 -- Variable's importance. [EMA chapter](https://pbiecek.github.io/ema/featureImportance.html), [paper pvi](https://arxiv.org/abs/1801.01489)
 * 2020-04-23/24 -- [XAI stories: second version of the solution]
 * 2020-04-30 --  TBA
