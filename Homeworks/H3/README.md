@@ -1,6 +1,6 @@
 Add your third homework as a pull request to this folder.
 
-Deadline 2020-04-02 EOD
+Deadline 2020-04-09 EOD
 
 
 Task:
