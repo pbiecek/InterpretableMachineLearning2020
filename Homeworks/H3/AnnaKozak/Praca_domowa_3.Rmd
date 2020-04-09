@@ -1,0 +1,244 @@
+---
+title: "Wyjaśnialne Uczenie Maszynowe - Praca domowa 3"
+author: "Anna Kozak"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(lubridate)
+library(gridExtra)
+library(splitTools)
+library(randomForest)
+library(dplyr)
+library(mlr)
+library(ranger)
+library(lime)
+library(tidyr)
+
+dane <- read.csv("kc_house_data.csv")
+dane$years <- year(Sys.time()) - dane$yr_built
+dane$years_from_renovation <- year(Sys.time()) - dane$yr_renovated
+head(dane)
+dane_model <- dane[, c("price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "floors", "waterfront", "view",
+                       "condition", "grade", "sqft_above", "sqft_basement", "zipcode", "lat", "long", "sqft_living15",
+                       "sqft_lot15", "years", "years_from_renovation")]
+options(scipen = 999)
+```
+
+## Zbiór danych
+
+Poniższa analiza została przygotowana na zbiorze danych opisujących sprzedaż domów (House Sales Prices). Poniżej lista zmiennych:
+
+- `price` cena nieruchomości
+- `bedrooms` liczba sypialni
+- `bathrooms` liczba łazienek
+- `sqft_living` powierzchnia użytkowa
+- `sqft_lot` powierzchnia gruntu
+- `floors` liczba pięter
+- `waterfront` czy nad wodą
+- `view` jakość widoku
+- `condition` stan 
+- `grade` jakość konstrukcji i wykończenia
+- `sqft_above` powierzchnia pięter
+- `sqft_basement` powierzchnia piwnicy
+- `yr_built` rok budowy
+- `yr_renovated`rok remontu
+- `zipcode` kod pocztowy
+- `lat` szerokość geograficzna
+- `long` długość geograficzna
+- `sqft_living15` średnia powierzchnia użytkowa dla 15-Nearest Neighbors
+- `sqft_lot15` średnia powierzchnia gruntu dla 15-Nearest Neighbors
+
+Do modelowania ceny sprzedaży domu (`price`) wybrano zmienne takie jak `bedrooms`, `bathrooms`, `sqft_living`, `sqft_lot`, `floors`, `waterfront`, `view`, `condition`, `grade`, `sqft_above`, `sqft_basement`, `zipcode`, `lat`, `long`, `sqft_living15`, `sqft_lot15` oraz dwie dodatkowo utworzone zmienne `years` opisującą wiek nieruchomośći i `years_from_renovation` czyli lata od remontu nieruchomości.
+
+## Analiza zmiennych
+
+Poniżej wykres gęstości oraz boxplot opisujący zmienną `price`. Jak możemy zauważyć rozkład tej zmiennej jest skośny. Mediana ceny nieruchomości wynosi 450000. Mamy dużo obserwacji odstających.
+
+```{r, error=FALSE, message=FALSE, warning=FALSE}
+p1 <- ggplot(dane, aes(x = price)) +
+  theme_bw() +
+  geom_density(fill = "navy", alpha = 0.4) +
+  labs(x = "Cena", y = " Gęstość")
+
+p2 <- ggplot(dane, aes(x = price)) + 
+  theme_bw() +
+  geom_boxplot(fill = "navy", alpha = 0.4) + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
+  labs(x = "Cena")
+
+grid.arrange(p1, p2, nrow = 2, heights = c(2, 1))
+```
+
+Dodatkowo poniżej zależności innych zmiennych od ceny nieruchmości.
+
+
+```{r, error=FALSE, message=FALSE, warning=FALSE}
+p3 <- ggplot(dane, aes(x = as.factor(bedrooms), y = price/1000000, fill = as.factor(bedrooms))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Liczba sypialni", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none")
+
+p4 <- ggplot(dane, aes(x = as.factor(bathrooms), y = price/1000000, fill = as.factor(bathrooms))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Liczba łazienek", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none", axis.text.x = element_text(size = 6))
+
+p5 <- ggplot(dane, aes(x = as.factor(floors), y = price/1000000, fill = as.factor(floors))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Liczba pięter", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none")
+
+p6 <- ggplot(dane, aes(x = as.factor(grade), y = price/1000000, fill = as.factor(grade))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Jakość konstrukcji i wykończenia", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none")
+
+grid.arrange(p3, p4, p5, p6, nrow = 2, ncol = 2)
+```
+
+Zależność roku budowy nieruchomości od ceny. Ograniczenie do nieruchomości, których cena jest niższa niż 1 mln. Niewielki wzrost ceny dla obserwacji, które zostały zbudowane na początku XX wieku oraz początku XXI wieku.
+
+```{r}
+ggplot(dane[dane$price < 1000000, ], aes(x = as.factor(yr_built), y = price, fill = as.factor(yr_built))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Rok budowy", y = "Cena", fill = "") +
+  theme(legend.position = "none") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
+```
+
+
+
+## Budowa modelu predykcyjnego (Ad 1)
+
+Zbudowano model lasu losowego (`ranger`). Zmienna objaśniana to cena nieruchomości.
+
+```{r, error=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+## Modelowanie z mlr
+library(mlr)
+library(ranger)
+## Dobór parametrów dla modelu random forest na podstawie metryki rmse
+tsk <- makeRegrTask(data = dane_model, target = "price")
+ps <- makeParamSet(
+  makeIntegerParam("num.trees", lower = 50, upper = 1000),
+  makeIntegerParam("mtry", lower = 1, upper = 4),
+  makeIntegerLearnerParam("min.node.size", lower = 1, upper = 100))
+
+ctrl <- makeTuneControlRandom(maxit = 100L)
+rdesc <- makeResampleDesc("CV", iters = 3L)
+res <- tuneParams("regr.ranger", 
+                 task = tsk, 
+                 resampling = rdesc,
+                 par.set = ps, 
+                 control = ctrl, 
+                 measures = rmse)
+lrn <- setHyperPars(makeLearner("regr.ranger"), 
+                   num.trees = res$x$num.trees, 
+                   mtry = res$x$mtry,
+                   min.node.size = res$x$min.node.size)
+
+
+## Trenowanie modelu
+mod <- train(lrn, tsk)
+```
+
+### Predykcja dla obserwacji (Ad 2)
+
+```{r, eval = FALSE}
+task_pred = predict(mod, newdata = dane_model)
+pred_values <- as.data.frame(task_pred)
+```
+
+
+## Wyjaśnienia
+
+W celu wyjaśnień metodą LIME skorzystano z pakietu `lime`.
+
+```{r, include=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+load("model_ranger.rda")
+```
+
+Budowanie obiektu `lime` oraz `explain` dla modelu `mlr` z pakietu `lime`.
+```{r, error=FALSE, message=FALSE, warning=FALSE}
+explain_mod <- lime(dane_model, mod, n_permutations = 2000)
+```
+
+
+### LIME dla obserwacji (Ad 3)
+
+Na wybranej obserwacji przedstawiono poniżej dekompozycję używając LIME. Zmienne, które są istotne dla tej obseracji to `sqft_living`, `grade` oraz `view`. Odpowiednio powierzchnia użytkowa, jakość konstrukcji i wykończenia oraz jakość widoku.
+
+
+```{r, include=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+expl <- explain(dane_model[2,], explain_mod, n_features = 18)
+plot_features(expl)
+```
+
+### Jak stabilne są te wyjaśnienia? (Ad 4)
+
+W celu sprawdzenia stabilności metody przeprowadzono eksperyment. Ze zbioru danych wylosowano 10 obserwacji. Dla każdej obserwacji oraz każdej ustalonej wartości parametru `n_permutations` (przyjęto wartości takie jak: 100, 200, 500, 700, 1000, 1200, 1500, 2000) wyliczono odchylenie standardowe ze stukrotnie powtórzonej dekompozycji LIME. Wyniki eksperymentu przedstawia poniższy wykres, na osi x zaznaczono wartości parametru `n_permutations`, na osi y jak zmienia się odchylenie standardowe na podstawie 10 obserwacji dla których stukrotnie powtórzono dekompozycję, kolor reprezentuje zmienną. Można wnioskować, że wyjaśnienia metodą LIME są stabline. W celu dokładniejszej weryfikacji tej tezy należałoby powtórzyć eksperyment dla dużo większej liczby obserwacji, z przyczyny długiego czasu obliczeń ograniczono się do 10 obserwacji.
+
+```{r,fig.width=14, fig.height=8, include=TRUE, warning=FALSE, error=FALSE, message=FALSE, echo = FALSE}
+load("table_sd_all.rda")
+ggplot(tmp2, aes(x = factor(n_perm), y = coef,  fill = variable)) +
+  geom_boxplot() +
+  theme_bw() +
+  labs(x = "Wartość parametru n_permutations", y = "Odchylenie standardowe", fill = "Zmienna", title = "Eksperyment stabilości metody LIME")
+```
+
+
+
+### Model regresji liniowej oraz LIME dla modelu regresji i modelu lasu losowego (Ad 5)
+
+Poniżej wyjaśnienia LIME dla obserwacji oraz modelu lasu losowego i regresji liniowej.
+
+```{r, message=FALSE, warning=FALSE, error=FALSE}
+tsk <- makeRegrTask(data = dane_model, target = "price")
+lrn <- makeLearner("regr.lm")
+mod_lm <- train(lrn, tsk)
+explain_mod_lm <- lime(dane_model, mod_lm)
+```
+
+#### Model lasu losowego
+
+```{r, include=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+expl_ranger <- explain(dane_model[2,], explain_mod, n_features = 1000)
+plot_features(expl_ranger)
+```
+
+#### Model regresji liniowej
+
+```{r, include=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+expl_lm <- explain(dane_model[2,], explain_mod_lm, n_features = 1000)
+plot_features(expl_lm)
+```
+
+Na poniższym wykresie ukazano różnice w wyjaśnieniach dla tej obserwacji. Zauważono znaczące różnice w wyjaśnieniach pod względem użytego modelu. Z drugiej storny oba modele wskazują takie same istotne zmienne, czyli `sqft_living` oraz `grade`. Odpowiednio powierzchnia użytkowa oraz jakość konstrukcji i wykończenia.
+
+```{r, warning=FALSE, error=FALSE, message=FALSE, echo = FALSE}
+daa <- data.frame(rbind(cbind(expl_ranger$feature, expl_ranger$feature_weight, "ranger"), cbind(expl_lm$feature, expl_lm$feature_weight, "lm")))
+daa$X2 <- as.numeric(as.character(daa$X2))
+ggplot(daa, aes(x = X1, y = X2, fill = X3)) + geom_col(position = "dodge") + theme_bw() + coord_flip() + scale_fill_manual(values=c("navy", "grey")) + labs(x = "Waga", y = "Zmienna", fill = "Model", title = "Porównanie wyjaśnień LIME dla obserwacji", subtitle = "Model lasu losowego oraz model regresji liniowej")
+```
+
+
+
+### Podsumowanie (Ad 6)
+
+Metoda LIME jest oparta na idei przybliżenia złożonego modelu prostszym. Dzięki temu, prostszy model z mniejszą liczbą zmiennych objaśniających do zinterpretowania jest łatwiejszy do wyjaśnienia. Istnieją pewne ograniczenia, jednym z nich jest kwestia reprezentacji zmiennych ciagłych i kategorycznych. Jest kilka propozycji rozwiązania tego problemu, ale nie wybrano jednego konkretnego. Najbardziej użyteczne zastosowania LIME ograniczają się do danych wysokowymiarowych, czyli takich jak analiza obrazu czy tekstu.
+
+Dodatkowo, przywołując wyniki wykonanego eksperymetu można postawić hipotezę, że metoda jest stablina przy zmianie parametru `n_permutations`.

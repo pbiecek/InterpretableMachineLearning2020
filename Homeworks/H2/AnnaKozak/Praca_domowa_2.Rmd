@@ -1,0 +1,299 @@
+---
+title: "Wyjaśnialne Uczenie Maszynowe - Praca domowa 2"
+author: "Anna Kozak"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(lubridate)
+library(gridExtra)
+library(splitTools)
+library(randomForest)
+library(dplyr)
+library(mlr)
+library(ranger)
+
+dane <- read.csv("kc_house_data.csv")
+dane$years <- year(Sys.time()) - dane$yr_built
+dane$years_from_renovation <- year(Sys.time()) - dane$yr_renovated
+head(dane)
+dane_model <- dane[, c("price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "floors", "waterfront", "view",
+                       "condition", "grade", "sqft_above", "sqft_basement", "zipcode", "lat", "long", "sqft_living15",
+                       "sqft_lot15", "years", "years_from_renovation")]
+options(scipen = 999)
+```
+
+## Zbiór danych
+
+Poniższa analiza została przygotowana na zbiorze danych opisujących sprzedaż domów (House Sales Prices). Poniżej lista zmiennych:
+
+- `price` cena nieruchomości
+- `bedrooms` liczba sypialni
+- `bathrooms` liczba łazienek
+- `sqft_living` powierzchnia użytkowa
+- `sqft_lot` powierzchnia gruntu
+- `floors` liczba pięter
+- `waterfront` czy nad wodą
+- `view` jakość widoku
+- `condition` stan 
+- `grade` jakość konstrukcji i wykończenia
+- `sqft_above` powierzchnia pięter
+- `sqft_basement` powierzchnia piwnicy
+- `yr_built` rok budowy
+- `yr_renovated`rok remontu
+- `zipcode` kod pocztowy
+- `lat` szerokość geograficzna
+- `long` długość geograficzna
+- `sqft_living15` średnia powierzchnia użytkowa dla 15-Nearest Neighbors
+- `sqft_lot15` średnia powierzchnia gruntu dla 15-Nearest Neighbors
+
+Do modelowania ceny sprzedaży domu (`price`) wybrano zmienne takie jak `bedrooms`, `bathrooms`, `sqft_living`, `sqft_lot`, `floors`, `waterfront`, `view`, `condition`, `grade`, `sqft_above`, `sqft_basement`, `zipcode`, `lat`, `long`, `sqft_living15`, `sqft_lot15` oraz dwie dodatkowo utworzone zmienne `years` opisującą wiek nieruchomośći i `years_from_renovation` czyli lata od remontu nieruchomości.
+
+## Analiza zmiennych
+
+Poniżej wykres gęstości oraz boxplot opisujący zmienną `price`. Jak możemy zauważyć rozkład tej zmiennej jest skośny. Mediana ceny nieruchomości wynosi 450000. Mamy dużo obserwacji odstających.
+
+```{r, error=FALSE, message=FALSE, warning=FALSE}
+p1 <- ggplot(dane, aes(x = price)) +
+  theme_bw() +
+  geom_density(fill = "navy", alpha = 0.4) +
+  labs(x = "Cena", y = " Gęstość")
+
+p2 <- ggplot(dane, aes(x = price)) + 
+  theme_bw() +
+  geom_boxplot(fill = "navy", alpha = 0.4) + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
+  labs(x = "Cena")
+
+grid.arrange(p1, p2, nrow = 2, heights = c(2, 1))
+```
+
+Dodatkowo poniżej zależności innych zmiennych od ceny nieruchmości.
+
+
+```{r, error=FALSE, message=FALSE, warning=FALSE}
+p3 <- ggplot(dane, aes(x = as.factor(bedrooms), y = price/1000000, fill = as.factor(bedrooms))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Liczba sypialni", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none")
+
+p4 <- ggplot(dane, aes(x = as.factor(bathrooms), y = price/1000000, fill = as.factor(bathrooms))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Liczba łazienek", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none", axis.text.x = element_text(size = 6))
+
+p5 <- ggplot(dane, aes(x = as.factor(floors), y = price/1000000, fill = as.factor(floors))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Liczba pięter", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none")
+
+p6 <- ggplot(dane, aes(x = as.factor(grade), y = price/1000000, fill = as.factor(grade))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Jakość konstrukcji i wykończenia", y = "Cena [mln]", fill = "") +
+  theme(legend.position = "none")
+
+grid.arrange(p3, p4, p5, p6, nrow = 2, ncol = 2)
+```
+
+Zależność roku budowy nieruchomości od ceny. Ograniczenie do nieruchomości, których cena jest niższa niż 1 mln. Niewielki wzrost ceny dla obserwacji, które zostały zbudowane na początku XX wieku oraz początku XXI wieku.
+
+```{r}
+ggplot(dane[dane$price < 1000000, ], aes(x = as.factor(yr_built), y = price, fill = as.factor(yr_built))) + 
+  geom_boxplot() + 
+  theme_bw() +
+  labs(x = "Rok budowy", y = "Cena", fill = "") +
+  theme(legend.position = "none") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
+```
+
+
+Poniżej rozkład zmiennej `years`, czyli wiek nieruchmości. W zbiorze danych większość obserwacji jest w przedziale 23-70 lat.
+
+```{r, error=FALSE, message=FALSE, warning=FALSE}
+
+p5 <- ggplot(dane, aes(x = years)) + 
+  geom_density(fill = "navy", alpha = 0.4) + 
+  theme_bw() +
+  labs(x = "Wiek nieruchomości", y = " Gęstość")
+
+p6 <- ggplot(dane, aes(x = years)) + 
+  theme_bw() +
+  geom_boxplot(fill = "navy", alpha = 0.4) + 
+  theme(axis.text.y = element_blank(), axis.ticks.y = element_blank()) + 
+  labs(x = "Wiek nieruchomości")
+
+grid.arrange(p5, p6, nrow = 2, heights = c(2, 1))
+```
+
+
+## Budowa modelu predykcyjnego (Ad 1)
+
+Zbudowano model lasu losowego (`ranger`). Zmienna objaśniana to cena nieruchomości.
+
+```{r, error=FALSE, message=FALSE, warning=FALSE, eval=FALSE}
+## Modelowanie z mlr
+library(mlr)
+library(ranger)
+## Dobór parametrów dla modelu random forest na podstawie metryki rmse
+tsk <- makeRegrTask(data = dane_model, target = "price")
+ps <- makeParamSet(
+  makeIntegerParam("num.trees", lower = 50, upper = 1000),
+  makeIntegerParam("mtry", lower = 1, upper = 4),
+  makeIntegerLearnerParam("min.node.size", lower = 1, upper = 100))
+
+ctrl <- makeTuneControlRandom(maxit = 100L)
+rdesc <- makeResampleDesc("CV", iters = 3L)
+res <- tuneParams("regr.ranger", 
+                 task = tsk, 
+                 resampling = rdesc,
+                 par.set = ps, 
+                 control = ctrl, 
+                 measures = rmse)
+lrn <- setHyperPars(makeLearner("regr.ranger"), 
+                   num.trees = res$x$num.trees, 
+                   mtry = res$x$mtry,
+                   min.node.size = res$x$min.node.size)
+
+
+## Trenowanie modelu
+mod <- train(lrn, tsk)
+```
+
+### Predykcja dla obserwacji (Ad 2)
+
+```{r, eval = FALSE}
+task_pred = predict(mod, newdata = dane_model)
+pred_values <- as.data.frame(task_pred)
+```
+
+
+## Wyjaśnienia
+
+### Explainer
+```{r, include=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+library(iBreakDown)
+load("model_ranger.rda")
+```
+
+Budowanie obiektu `explain` dla modelu `mlr` przy użyciu funkcji `explain_mlr()` z pakietu `DALEXtra`.
+```{r, error=FALSE, message=FALSE, warning=FALSE}
+library(DALEX)
+library(DALEXtra)
+
+explain_mod <- DALEXtra::explain_mlr(model = mod, data = dane_model, y = dane_model$price)
+```
+
+
+### Break Down oraz SHAP dla obserwacji (Ad 3)
+
+Na wybranej obserwacji przedstawiono poniżej wykres Break Down oraz SHAP. Zmienne, które są istotne dla tej obseracji to `grade`, `years` oraz `lat`. Odpowiednio jakość konstrukcji i wykończenia, wiek nieruchomości oraz położenie geograficzne (szerokość geograficzna).
+
+```{r, include=FALSE}
+load("BD_obs2.rda")
+obs2$label <- "Ranger"
+```
+
+```{r, eval=FALSE}
+obs2 <- variable_attribution(explain_mod,
+                 new_observation = dane_model[2, ],
+                 type = "break_down")
+plot(obs2)
+```
+```{r, include=TRUE, echo=FALSE}
+plot(obs2)
+```
+
+```{r, include=FALSE}
+load("SHAP_obs2.rda")
+shap_house$label <- "Ranger"
+```
+
+
+```{r, eval = FALSE}
+shap_house <- variable_attribution(explain_mod, 
+                                   dane_model[2, ], 
+                                   type = "shap",
+                                   B = 25)
+plot(shap_house)
+```
+
+```{r, include=TRUE, echo=FALSE}
+plot(shap_house)
+```
+
+### Break Down dla dwóch obseracji, które mają inne zmienne istotne (Ad 4)
+
+Dla wykresu u góry istotne zmienne to `lat`, `sqrt_living`, a dla wykresu na dole `grade` oraz `years`.
+
+```{r, include=FALSE}
+load("BD_obs1.rda")
+obs1$label <- "Ranger"
+```
+
+```{r}
+plot(obs1)
+plot(obs2)
+```
+
+
+### Break Down dla obserwacji, które mają różne efekty dla tej samej zmiennej 
+
+Dla tych dwóch obserwacji mamy inne efekt dla zmiennej `sqft_above`. 
+
+```{r, include=FALSE}
+load("BD_obs_3.rda")
+obs3$label <- "Ranger"
+```
+
+```{r, eval=FALSE}
+obs3 <- variable_attribution(explain_mod,
+                 new_observation = dane_model[3, ],
+                 type = "break_down")
+```
+
+```{r}
+plot(obs2)
+plot(obs3)
+```
+
+### Model regresji liniowej oraz wykres Break Down dla modelu regresji oraz modelu lasu losowego (Ad 6)
+
+```{r, message=FALSE, warning=FALSE, error=FALSE}
+mod_lm <- lm(price ~ ., data = dane_model)
+
+explain_mod_lm <- DALEX::explain(model = mod_lm, label = "Linear Regression")
+```
+
+```{r, eval=FALSE}
+obs2_lm <- variable_attribution(explain_mod_lm,
+                 new_observation = dane_model[2, ],
+                 type = "break_down")
+
+plot(obs2_lm)
+```
+
+```{r, include=FALSE}
+load("BD_lm_obs2.rda")
+```
+
+```{r}
+plot(obs2)
+plot(obs2_lm)
+```
+
+### Podsumowanie (Ad 7)
+
+Wykresy Break Down służą do wyjaśnień lokalnych. Oznacza to, że wykorzystujemy je do badania wpływu zmiennych dla predycji wybranej obserwacji. Na podstawie powyższych wykresów możemy określić wpływ zmiennych na wyniki predykcji. Zauważamy, że dla różnych zmiennych mam inne zmienne istotne oraz to, że wpływy tych zmiennych mogą być różne. Dodatkowo zbudowano model regresji liniowej, wykresy Break Down w porówananiu z modelem lasu losowego dla tej samej obesrwacji pokazują różne zmienne istotne oraz różne ich wpływy.
