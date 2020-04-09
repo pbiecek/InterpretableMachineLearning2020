@@ -16,3 +16,14 @@ TODO:
 5. train a second model (of any class, neural nets, linear, other boosting) and find an observation for which CP profiles are different between the models
 6. Comment on the results for points (4) and (5)
 
+
+**Important note:**
+
+The submitted homework should be in html format (generated from a knitter/jupiter) and should consist of two parts. 
+
+The first part is the key results and comments from points 4-6. In this part **PLESE DO NOT SHOW ANY R/PYTHON CODES, RESULTS (IMAGES, COMMENTS) ONLY.**
+
+The second part should start with the word Appendix or Załącznik and should include the reproducible R/PYTHON code used to implement points 1-6.
+
+Such division 1. will make these homework more readable, 2. will create good habits related to reporting.
+
