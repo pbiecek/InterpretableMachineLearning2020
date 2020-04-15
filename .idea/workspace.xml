@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="74556104-38aa-427d-96c1-af5135a2cc5f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Homeworks/H2/Dominika Bankiewicz/Medical_expenditure_panel_survay_model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Homeworks/H2/Dominika Bankiewicz/Medical_expenditure_panel_survay_model.ipynb" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Jupyter Notebook" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="MERGE" />
+  </component>
+  <component name="JupyterTrust" id="e81015dc-c7ef-427d-8769-eeda9df681ac" />
+  <component name="ProjectId" id="1Z0CSCdFxRtXwmijL25NJ9C4lHh" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Homeworks/H2/Dominika Bankiewicz" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Homeworks/H2/Dominika Bankiewicz" />
+      <recent name="$PROJECT_DIR$/Homeworks/H1/Dominika Bankiewicz" />
+    </key>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="74556104-38aa-427d-96c1-af5135a2cc5f" name="Default Changelist" comment="" />
+      <created>1583966621211</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1583966621211</updated>
+      <workItem from="1583966623964" duration="1701000" />
+      <workItem from="1585182031741" duration="593000" />
+      <workItem from="1585182648820" duration="291000" />
+      <workItem from="1585301077712" duration="241000" />
+      <workItem from="1585301846728" duration="922000" />
+      <workItem from="1585316201597" duration="22000" />
+    </task>
+    <task id="LOCAL-00001" summary="Homework 01">
+      <created>1583966906699</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1583966906699</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Homework 02">
+      <created>1585182237057</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1585182237057</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Homework 01" />
+    <MESSAGE value="Homework 02" />
+    <option name="LAST_COMMIT_MESSAGE" value="Homework 02" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="401" y="78" width="1183" height="925" key="CommitChangelistDialog2" timestamp="1585182236907">
+      <screen x="70" y="27" width="1850" height="1053" />
+    </state>
+    <state x="401" y="78" width="1183" height="925" key="CommitChangelistDialog2/70.27.1850.1053@70.27.1850.1053" timestamp="1585182236907" />
+    <state x="781" y="304" width="424" height="497" key="FileChooserDialogImpl" timestamp="1585301134793">
+      <screen x="70" y="27" width="1850" height="1053" />
+    </state>
+    <state x="781" y="304" width="424" height="497" key="FileChooserDialogImpl/70.27.1850.1053@70.27.1850.1053" timestamp="1585301134793" />
+    <state x="593" y="241" width="800" height="564" key="Vcs.Push.Dialog.v2" timestamp="1585182239467">
+      <screen x="70" y="27" width="1850" height="1053" />
+    </state>
+    <state x="593" y="241" width="800" height="564" key="Vcs.Push.Dialog.v2/70.27.1850.1053@70.27.1850.1053" timestamp="1585182239467" />
+    <state x="655" y="370" key="com.intellij.ide.util.TipDialog" timestamp="1585316201278">
+      <screen x="70" y="27" width="1850" height="1053" />
+    </state>
+    <state x="655" y="370" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1585316201278" />
+    <state x="765" y="472" width="459" height="173" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1585182053614">
+      <screen x="70" y="27" width="1850" height="1053" />
+    </state>
+    <state x="765" y="472" width="459" height="173" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/70.27.1850.1053@70.27.1850.1053" timestamp="1585182053614" />
+  </component>
+</project>
