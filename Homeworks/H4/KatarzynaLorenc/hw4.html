@@ -13377,6 +13377,14 @@ Zmiana dochodu do ponad 90 000 dolarów zwiększyłoby predykcję wydatków z 31
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="1.png" alt="title"></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 
 <div class="output_wrapper">
@@ -13390,7 +13398,6 @@ Zmiana dochodu do ponad 90 000 dolarów zwiększyłoby predykcję wydatków z 31
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>WARNING:root:Model is unlabeled... 
  You can add label using method set_label
-WARNING:root:Selected variables are not subset of all variables. Parameter is ignored.
 </pre>
 </div>
 </div>
@@ -13399,28 +13406,9 @@ WARNING:root:Selected variables are not subset of all variables. Parameter is ig
 
     <div class="prompt"> </div>
 
-
-<div class="output_html rendered_html output_subarea ">
-
-        <iframe
-            width="660"
-            height="550"
-            src="_plot_files/plots0.html"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
-        
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"> </div>
-
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Intercept 7432.62581814311
-Prediction_local [25489.90243777]
+<pre>Intercept 7693.654349728594
+Prediction_local [23622.62567171]
 Right: 31404.45594885613
 </pre>
 </div>
@@ -50522,25 +50510,25 @@ Right: 31404.45594885613
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divQT5AV54R9JV5POD"></div>
+        <div class="lime top_div" id="top_divK4HSZ9DU13GK9AZ"></div>
         
         <script>
-        var top_div = d3.select('#top_divQT5AV54R9JV5POD').classed('lime top_div', true);
+        var top_div = d3.select('#top_divK4HSZ9DU13GK9AZ').classed('lime top_div', true);
         
         
                     var pp_div = top_div.append('div')
                                         .classed('lime predicted_value', true);
                     var pp_svg = pp_div.append('svg').style('width', '100%');
-                    var pp = new lime.PredictedValue(pp_svg, 31404.45594885613, -29213.2092531912, 218691.34049202365);
+                    var pp = new lime.PredictedValue(pp_svg, 31404.45594885613, -14354.06301312815, 156909.732146519);
                     
         var exp_div;
             var exp = new lime.Explanation(["negative", "positive"]);
         
             exp_div = top_div.append('div').classed('lime explanation', true);
-            exp.show([["-1.00 < PCS42 <= 43.34", 4690.101628950349], ["ACTLIM31=1", 3980.6618507148396], ["AGE31X > 57.00", 3663.417571551915], ["WLKLIM31=1", 3422.2771023789674], ["RTHLTH31=4", 3035.432421294586], ["INCOME_M <= 0.00", -2853.2896038905965], ["ARTHTYPE=1", 2338.38886043016], ["MCS42 > 57.06", 664.9909318972186], ["PHQ242=0", -552.5036335669765], ["0.00 < K6SUM42 <= 3.00", -332.20051013378077]], 1, exp_div);
+            exp.show([["-1.00 < PCS42 <= 43.34", 4958.8343647989], ["RTHLTH31=4", 3597.588768781555], ["AGE31X > 57.00", 2952.0230426283706], ["INCOME_M <= 0.00", -2829.6350348098927], ["ACTLIM31=1", 2573.4740063354166], ["WLKLIM31=1", 2429.6225866713985], ["ARTHTYPE=1", 2021.745770342645], ["MCS42 > 57.06", 1244.9392916091438], ["PHQ242=0", -603.8174212168003], ["0.00 < K6SUM42 <= 3.00", -415.8040531564156]], 1, exp_div);
             
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["PCS42", "10.54", 4690.101628950349], ["ACTLIM31=1", "True", 3980.6618507148396], ["AGE31X", "59.00", 3663.417571551915], ["WLKLIM31=1", "True", 3422.2771023789674], ["RTHLTH31=4", "True", 3035.432421294586], ["INCOME_M", "0.00", -2853.2896038905965], ["ARTHTYPE=1", "True", 2338.38886043016], ["MCS42", "60.97", 664.9909318972186], ["PHQ242=0", "True", -552.5036335669765], ["K6SUM42", "2.00", -332.20051013378077]], 1, raw_div);
+            exp.show_raw_tabular([["PCS42", "10.54", 4958.8343647989], ["RTHLTH31=4", "True", 3597.588768781555], ["AGE31X", "59.00", 2952.0230426283706], ["INCOME_M", "0.00", -2829.6350348098927], ["ACTLIM31=1", "True", 2573.4740063354166], ["WLKLIM31=1", "True", 2429.6225866713985], ["ARTHTYPE=1", "True", 2021.745770342645], ["MCS42", "60.97", 1244.9392916091438], ["PHQ242=0", "True", -603.8174212168003], ["K6SUM42", "2.00", -415.8040531564156]], 1, raw_div);
         
         </script>
         </body></html>
@@ -50631,6 +50619,14 @@ Inny kształt ma także krzywa dla zmiennej <strong>PHQ242</strong>. W pierwszym
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="2.png" alt="title"></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing code_cell rendered">
 
 <div class="output_wrapper">
@@ -50644,7 +50640,6 @@ Inny kształt ma także krzywa dla zmiennej <strong>PHQ242</strong>. W pierwszym
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>WARNING:root:Model is unlabeled... 
  You can add label using method set_label
-WARNING:root:Selected variables are not subset of all variables. Parameter is ignored.
 </pre>
 </div>
 </div>
@@ -50653,28 +50648,9 @@ WARNING:root:Selected variables are not subset of all variables. Parameter is ig
 
     <div class="prompt"> </div>
 
-
-<div class="output_html rendered_html output_subarea ">
-
-        <iframe
-            width="660"
-            height="550"
-            src="_plot_files/plots1.html"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
-        
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"> </div>
-
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Intercept 12171.80418452801
-Prediction_local [13899.33119511]
+<pre>Intercept 13976.911167211802
+Prediction_local [13355.51216481]
 Right: 5582.8626183470105
 </pre>
 </div>
@@ -87776,25 +87752,25 @@ Right: 5582.8626183470105
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divHYGDY1EMN474ZGS"></div>
+        <div class="lime top_div" id="top_divIPGHMTSQSLXHUDC"></div>
         
         <script>
-        var top_div = d3.select('#top_divHYGDY1EMN474ZGS').classed('lime top_div', true);
+        var top_div = d3.select('#top_divIPGHMTSQSLXHUDC').classed('lime top_div', true);
         
         
                     var pp_div = top_div.append('div')
                                         .classed('lime predicted_value', true);
                     var pp_svg = pp_div.append('svg').style('width', '100%');
-                    var pp = new lime.PredictedValue(pp_svg, 5582.8626183470105, -14901.994401349872, 157729.23480377492);
+                    var pp = new lime.PredictedValue(pp_svg, 5582.8626183470105, -16003.392404607077, 245840.74384560555);
                     
         var exp_div;
             var exp = new lime.Explanation(["negative", "positive"]);
         
             exp_div = top_div.append('div').classed('lime explanation', true);
-            exp.show([["PCS42 <= -1.00", 5728.469580194574], ["ACTLIM31=2", -3371.7847394622704], ["AGE31X > 57.00", 3307.576105259198], ["K6SUM42 <= -1.00", -3004.0606250302126], ["ARTHTYPE=3", 2695.270018670708], ["WLKLIM31=2", -2118.120020702001], ["0.00 < INCOME_M <= 16200.00", -1307.2113213011783], ["MCS42 <= -1.00", 1277.7235164015485], ["RTHLTH31=2", -1244.8318542173822], ["PHQ242=-1", -235.50364923390129]], 1, exp_div);
+            exp.show([["PCS42 <= -1.00", 5990.089138027512], ["WLKLIM31=2", -3823.8402653719086], ["AGE31X > 57.00", 3605.4764543457572], ["ACTLIM31=2", -3394.9998946079836], ["K6SUM42 <= -1.00", -3206.284146568629], ["MCS42 <= -1.00", 1970.3034701111553], ["0.00 < INCOME_M <= 16200.00", -1781.8202585900585], ["ARTHTYPE=3", 1775.6699628219815], ["PHQ242=-1", -910.2584900356834], ["RTHLTH31=2", -845.7349725291957]], 1, exp_div);
             
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["PCS42", "-1.00", 5728.469580194574], ["ACTLIM31=2", "True", -3371.7847394622704], ["AGE31X", "61.00", 3307.576105259198], ["K6SUM42", "-1.00", -3004.0606250302126], ["ARTHTYPE=3", "True", 2695.270018670708], ["WLKLIM31=2", "True", -2118.120020702001], ["INCOME_M", "5364.00", -1307.2113213011783], ["MCS42", "-1.00", 1277.7235164015485], ["RTHLTH31=2", "True", -1244.8318542173822], ["PHQ242=-1", "True", -235.50364923390129]], 1, raw_div);
+            exp.show_raw_tabular([["PCS42", "-1.00", 5990.089138027512], ["WLKLIM31=2", "True", -3823.8402653719086], ["AGE31X", "61.00", 3605.4764543457572], ["ACTLIM31=2", "True", -3394.9998946079836], ["K6SUM42", "-1.00", -3206.284146568629], ["MCS42", "-1.00", 1970.3034701111553], ["INCOME_M", "5364.00", -1781.8202585900585], ["ARTHTYPE=3", "True", 1775.6699628219815], ["PHQ242=-1", "True", -910.2584900356834], ["RTHLTH31=2", "True", -845.7349725291957]], 1, raw_div);
         
         </script>
         </body></html>
@@ -87817,6 +87793,14 @@ Right: 5582.8626183470105
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Model regresji grzbietowej na zbiorze danych z dokonaną wcześniej selekcją zmiennych. Po poniższych wykresach można zauważyć, że regresja zdecydowanie zaniża predykcję w przypadku wysokich wydatków.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="3.png" alt="title"></p>
 
 </div>
 </div>
@@ -87892,7 +87876,6 @@ Porównując z wyjaśnieniem modelu GradientBoostingRegressor to odwrotny wpływ
 <div class="output_subarea output_stream output_stderr output_text">
 <pre>WARNING:root:Model is unlabeled... 
  You can add label using method set_label
-WARNING:root:Selected variables are not subset of all variables. Parameter is ignored.
 </pre>
 </div>
 </div>
@@ -87901,28 +87884,9 @@ WARNING:root:Selected variables are not subset of all variables. Parameter is ig
 
     <div class="prompt"> </div>
 
-
-<div class="output_html rendered_html output_subarea ">
-
-        <iframe
-            width="660"
-            height="550"
-            src="_plot_files/plots3.html"
-            frameborder="0"
-            allowfullscreen
-        ></iframe>
-        
-</div>
-
-</div>
-
-<div class="output_area">
-
-    <div class="prompt"> </div>
-
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Intercept 9460.38618809274
-Prediction_local [7184.23956168]
+<pre>Intercept 9317.047444647169
+Prediction_local [6863.54589002]
 Right: 6340.060033636972
 </pre>
 </div>
@@ -125024,25 +124988,25 @@ Right: 6340.060033636972
 /***/ })
 /******/ ]);
 //# sourceMappingURL=bundle.js.map </script></head><body>
-        <div class="lime top_div" id="top_divJN2CW66ODW4OGGN"></div>
+        <div class="lime top_div" id="top_divDM0WJ5WLQMOHQS4"></div>
         
         <script>
-        var top_div = d3.select('#top_divJN2CW66ODW4OGGN').classed('lime top_div', true);
+        var top_div = d3.select('#top_divDM0WJ5WLQMOHQS4').classed('lime top_div', true);
         
         
                     var pp_div = top_div.append('div')
                                         .classed('lime predicted_value', true);
                     var pp_svg = pp_div.append('svg').style('width', '100%');
-                    var pp = new lime.PredictedValue(pp_svg, 6340.060033636972, -10029.13641252483, 26314.519270392502);
+                    var pp = new lime.PredictedValue(pp_svg, 6340.060033636972, -10526.73718871404, 26525.399149169847);
                     
         var exp_div;
             var exp = new lime.Explanation(["negative", "positive"]);
         
             exp_div = top_div.append('div').classed('lime explanation', true);
-            exp.show([["PCS42 <= -1.00", 7706.779713140328], ["MCS42 <= -1.00", -5348.645963201702], ["WLKLIM31=2", -4099.880668663799], ["AGE31X > 57.00", 2963.569930062356], ["PHQ242=-1", -2130.065669000033], ["ACTLIM31=2", -1514.1695858033097], ["ARTHTYPE=3", 1275.3184871172764], ["K6SUM42 <= -1.00", -467.43767110742436], ["0.00 < INCOME_M <= 16200.00", -429.0634908282272], ["RTHLTH31=2", -232.55170812696127]], 1, exp_div);
+            exp.show([["PCS42 <= -1.00", 7620.227251882405], ["MCS42 <= -1.00", -5359.866093944843], ["WLKLIM31=2", -4061.693335258151], ["AGE31X > 57.00", 2950.3980888315155], ["PHQ242=-1", -2022.6721355803525], ["ACTLIM31=2", -1293.2557102956455], ["ARTHTYPE=3", 1150.761470637223], ["0.00 < INCOME_M <= 16200.00", -576.7936484402028], ["K6SUM42 <= -1.00", -546.3256940638777], ["RTHLTH31=2", -314.2817483924474]], 1, exp_div);
             
         var raw_div = top_div.append('div');
-            exp.show_raw_tabular([["PCS42", "-1.00", 7706.779713140328], ["MCS42", "-1.00", -5348.645963201702], ["WLKLIM31=2", "True", -4099.880668663799], ["AGE31X", "61.00", 2963.569930062356], ["PHQ242=-1", "True", -2130.065669000033], ["ACTLIM31=2", "True", -1514.1695858033097], ["ARTHTYPE=3", "True", 1275.3184871172764], ["K6SUM42", "-1.00", -467.43767110742436], ["INCOME_M", "5364.00", -429.0634908282272], ["RTHLTH31=2", "True", -232.55170812696127]], 1, raw_div);
+            exp.show_raw_tabular([["PCS42", "-1.00", 7620.227251882405], ["MCS42", "-1.00", -5359.866093944843], ["WLKLIM31=2", "True", -4061.693335258151], ["AGE31X", "61.00", 2950.3980888315155], ["PHQ242=-1", "True", -2022.6721355803525], ["ACTLIM31=2", "True", -1293.2557102956455], ["ARTHTYPE=3", "True", 1150.761470637223], ["INCOME_M", "5364.00", -576.7936484402028], ["K6SUM42", "-1.00", -546.3256940638777], ["RTHLTH31=2", "True", -314.2817483924474]], 1, raw_div);
         
         </script>
         </body></html>
