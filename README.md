@@ -66,7 +66,7 @@ Home works [0-30 points]
  - [home work 2](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H2/README.md) for 0-5 points. **Deadline: 2020-03-26**
  - [home work 3](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H3/README.md) for 0-5 points. **Deadline: 2020-04-09**
  - [home work 4](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H4/README.md) for 0-5 points. **Deadline: 2020-04-16**
- - [home work 5](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H5/README.md) for 0-5 points. **Deadline: 2020-04-30**
+ - [home work 5](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H5/README.md) for 0-5 points. **Deadline: 2020-05-04**
  - [home work 6](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H6/README.md) for 0-5 points. **Deadline: 2020-05-14**
 
 
