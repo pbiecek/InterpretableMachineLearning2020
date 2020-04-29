@@ -1,0 +1,334 @@
+---
+title: "COVID19 Mortality rate prediction. IML '20 Homework 4. - Appendix"
+author: "Łukasz Grad"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(glmnet)
+library(randomForest)
+library(xgboost)
+library(splines)
+library(data.table)
+
+theme_set(theme_economist())
+```
+
+Data source: https://github.com/beoutbreakprepared/nCoV2019/blob/master/latest_data/latestdata.csv
+
+```{r, include=F}
+covid = read_csv('data/latestdata.csv')
+```
+
+```{r}
+covid %>% head()
+```
+
+```{r, include=T}
+covid %>%
+    summarise_all(~ mean(is.na(.)))
+```
+
+```{r, include=T}
+# A tiny bit of cheating to increase positive sample size
+death_vals = c('death', 'died',
+               'treated in an intensive care unit (14.02.2020)',
+               'critical condition, intubated as of 14.02.2020')
+covid %>% filter(outcome %in% death_vals)
+```
+
+```{r, include=T}
+clean_string <- function(string){
+    temp <- tolower(string)
+    temp <- stringr::str_replace_all(temp,"[^a-zA-Z\\s]", " ")
+    temp <- stringr::str_replace_all(temp,"[\\s]+", " ")
+    temp <- stringr::str_split(temp, " ")[[1]]
+    indexes <- which(temp == "")
+    if(length(indexes) > 0){
+      temp <- temp[-indexes]
+    } 
+    return(temp)
+}
+```
+
+```{r, include=T}
+symptoms_data = lapply(covid$symptoms, clean_string)
+```
+
+```{r, include=T}
+symptoms_all <- unlist(symptoms_data)
+symptoms_all_sorted = sort(table(symptoms_all), decreasing = T)
+symptoms_all_sorted[1:15]
+```
+
+```{r, include=T}
+covid %>% 
+    filter(outcome %in% death_vals) %>%
+    ggplot(aes(country)) +
+    geom_bar() +
+    coord_flip()
+```
+
+```{r, include=T}
+frequent_countries = c('china', 'united states', 'philippines')
+frequent_symptoms = c('pneumonia|pneumonitis', 'fever', 
+                      'cough', 'sore throat')
+
+covid_train = covid %>%
+    mutate(
+        outcome = ifelse(outcome %in% death_vals, 'dead', 'recovered'),
+        country = ifelse(tolower(country) %in% frequent_countries, country, 'other'),
+        in_wuhan = !as.logical(`wuhan(0)_not_wuhan(1)`),
+        age = ifelse(str_detect(age, "[:digit:]{2}-[:digit:]{2}"),
+                     0.5 * as.numeric(str_sub(age, 1, 2)) + 0.5 * as.numeric(str_sub(age, 3, 4)),
+                     as.numeric(age)),
+        sex = tolower(sex),
+        chronic_disease = ifelse(is.na(chronic_disease_binary),
+                                 'unknown',
+                                 ifelse(chronic_disease_binary == '1', '1', '0'))
+    ) %>%
+    select(age, sex, country, chronic_disease, outcome, in_wuhan, symptoms) %>%
+    filter(!is.na(age)) %>%
+    filter(!is.na(sex))
+
+for (symptom in frequent_symptoms) {
+    covid_train[symptom] = str_detect(symptom, covid_train$symptoms)
+    covid_train[symptom][is.na(covid_train[symptom])] = F
+}
+
+covid_train = covid_train %>% select(-symptoms)
+covid_train = covid_train %>%
+    mutate_if(is.logical, as.factor)
+
+covid_train %>% head
+```
+
+```{r, include=T}
+set.seed(1)
+covid_train = covid_train %>% select(-in_wuhan)
+covid_train = covid_train[sample(1:nrow(covid_train), size = nrow(covid_train), replace = F, ),]
+```
+
+```{r, include=T}
+covid_train = covid_train %>%
+    mutate_if(is.character, as.factor)
+
+train_mask = caret::createDataPartition(covid_train$outcome, p = 0.7)[[1]]
+data_train = covid_train[train_mask,]
+data_valid = covid_train[-train_mask,]
+
+xlevs_train = data_train %>% select(-outcome)
+xlevs <- lapply(xlevs_train[,sapply(xlevs_train, is.factor), drop = F], function(j){
+    levels(j)
+})
+```
+
+```{r, include=T}
+pos = function(x, s, u = NULL) {
+    x = ifelse(x > s, x - s, 0)
+    if (!is.null(u))
+        x = ifelse(x > (u - s), u - s, x)
+    x
+}
+
+dtrain = model.matrix(~ age + pos(age, 50) + . - 1, 
+                      data = data_train %>% select(-outcome))
+dvalid = model.matrix(~ age + pos(age, 50) +  . - 1,
+                      data = data_valid %>% select(-outcome))
+cv_glmnet = cv.glmnet(dtrain, data_train$outcome == 'dead', family = 'binomial', nfolds = 5, 
+                   type.measure = 'deviance', keep = TRUE)
+plot(cv_glmnet)
+```
+
+```{r, include=T}
+best_ind = which(cv_glmnet$lambda == cv_glmnet$lambda.min)
+beta = cv_glmnet$glmnet.fit$beta[, best_ind]
+beta
+```
+
+```{r, include=T}
+pred_data = tibble(y = data_valid$outcome == 'dead', 
+       pred_link = predict(cv_glmnet, dvalid, type='link', s = 'lambda.min'),
+       pred = predict(cv_glmnet, dvalid, type='response', s = 'lambda.min'))
+pred_data %>%
+    ggplot(aes(pred_link, fill = y)) +
+    geom_histogram(stat = 'density', alpha = 0.5, position = 'identity')
+```
+
+```{r, include=T}
+lrm = glm(outcome == 'dead' ~ age + sex + country +
+                              fever + chronic_disease,
+          family = 'binomial', data = data_train)
+summary(lrm)
+```
+
+```{r, include=T}
+dtrain_xgb = model.matrix(~ . - 1, data = data_train %>% select(-outcome))
+dvalid_xgb = model.matrix(~ . - 1, data = data_valid %>% select(-outcome))
+
+bst  = xgboost(data = dtrain_xgb, label = ifelse(data_train$outcome == 'dead', 1, 0), max_depth = 4, 
+               eta = 0.3, nrounds = 35, nthread = 2, colsample_bytree = 0.5,
+               objective = "binary:logistic", scale_pos_weight = 1, eval_metric = 'logloss',
+               monotone_constraints = '(1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)')
+```
+
+```{r, include=T}
+logit <- function(x) log(x / (1 - x))
+
+pred_data = tibble(y = data_valid$outcome == 'dead', 
+       pred = predict(bst, dvalid_xgb, type='prob'))
+pred_data %>%
+    ggplot(aes(logit(pred), fill = y)) +
+    geom_histogram(stat = 'density', alpha = 0.5, position = 'identity')
+```
+
+```{r, include=T}
+sigmoid = function(x) 1 / (1 + exp(x))
+logit = function(x) log(x / (1 - x))
+
+th = sigmoid(1) * 100
+th
+```
+
+```{r, include=T}
+th = 30
+
+lrm_explain = DALEX::explain(lrm, data = data_valid %>% select(-outcome), 
+                             y = data_valid$outcome == 'dead', 
+                             type = 'classification', label = 'GLM', 
+                             predict_function = function(m, d) yhat(m, d) * 100)
+
+xgb_predict = function(model, data) {
+    data = model.matrix(~ . - 1, data = data, xlev = xlevs)
+    predict(model, data, type = 'prob') * 100
+}
+xgb_explain = DALEX::explain(bst, data = data_valid %>% select(-outcome),
+                             y = data_valid$outcome == 'dead', 
+                             type = 'classification', label = 'XGB',
+                             predict_function = xgb_predict)
+
+glmnet_predict = function(model, data) {
+    data = model.matrix(~ age + pos(age, 50) + . - 1, data = data, xlev = xlevs)
+    predict(model, data, type = 'response', s = 'lambda.min')[, 1] * 100
+}
+
+cv_glmnet_explain = DALEX::explain(cv_glmnet, data = data_valid %>% select(-outcome),
+                                    y = data_valid$outcome == 'dead', 
+                                    type = 'classification', label = 'GLMNET',
+                                    predict_function = glmnet_predict)
+```
+
+```{r, include=T}
+lrm_perf = DALEX::model_performance(lrm_explain, cutoff = th)
+xgb_perf = DALEX::model_performance(xgb_explain, cutoff = th)
+cv_glmnet_perf = DALEX::model_performance(cv_glmnet_explain, cutoff = th)
+lrm_perf
+xgb_perf
+cv_glmnet_perf
+```
+
+```{r, include=T}
+p1 <- plot(cv_glmnet_perf, xgb_perf, lrm_perf, geom = "roc")
+p2 <- plot(cv_glmnet_perf, xgb_perf, lrm_perf, geom = "lift")
+
+library(patchwork)
+p1 + p2
+```
+
+### 2. For some selected observation from this dataset, calculate the model predictions for model (1)
+
+```{r}
+example_ind = 1
+example = data_valid[example_ind, ]
+example
+```
+
+```{r}
+xgb_predict(bst, example %>% select(-outcome))
+```
+
+XGBoost model predicts < 1% mortality rate for a 71 year old woman, without any known symptoms. Seems 
+pretty low, nevertheless it is correct.
+
+### 3. For an observation selected in (2), calculate the decomposition of model prediction using Ceteris paribus / ICE profiles (packages for R: DALEX, ALEPlot, ingredients, packages for python: pyCeterisParibus).
+
+```{r}
+cp_example = DALEX::individual_profile(xgb_explain, example %>% as.data.frame)
+plot(cp_example, variables = c('age')) +
+    ggtitle('Ceteris Paribus Profile for XGBoost model - age')
+plot(cp_example, variables = c('sex', 'country', 'chronic_disease', 'fever'), variable_type = 'categorical') +
+    ggtitle('Ceteris Paribus Profile for XGBoost model - categorical variables')
+```
+
+### 4. Find two observations in the data set, such that they have different CP profiles (e.g. model response is growing with age for one observations and lowering with age for another). Note that you need to have model with interactions to have such differences
+
+```{r}
+xgb_preds = xgb_predict(bst, data_valid %>% select(-outcome))
+low_examples = c(974, 2525)
+med_examples = c(2195, 3313)
+high_examples = c(101, 2657)
+all_examples = c(low_examples, med_examples, high_examples)
+data_valid[c(2525, 2657), ]
+```
+
+```{r}
+cp_example = DALEX::individual_profile(xgb_explain, data_valid[c(2525, 2657), ] %>% as.data.frame)
+plot(cp_example, color = '_ids_', 
+     variables = c('age')) +
+    scale_color_manual(name = "Patient", breaks = 1:2, 
+                       values = c("#4378bf", "#8bdcbe"),
+                       labels = c("Female, US, no ChD" , "Female, China, ChD")) + 
+    ggtitle('Ceteris Paribus Profile for XGBoost model - age')
+```
+
+Here we can see two drastically different CP age profiles. 
+
+Although the XGBoost model has monotonicity constraints,
+the mortality rate for a female person living in United States having no chronic diseases stays basically flat 
+across whole age spectrum, even at a very old age.
+
+On the other hand, a female from China with chronic diseases present, has a very steep age profile, with mortality
+rate being  close to 100% at an old age.
+
+The first profile looks unreasonable, this is probably due to no mortal cases of older people in US having no
+chronic diseases. Such occurences are probably rare, and given the small positive sample size, no such cases 
+is likely to happen.
+
+### 5. Train a second model (of any class, neural nets, linear, other boosting) and find an observation for which CP profiles are different between the models
+
+```{r}
+data_valid[2657, ]
+```
+
+```{r}
+xgb_cp_example = DALEX::individual_profile(xgb_explain, data_valid[2657, ] %>% as.data.frame)
+
+plot(xgb_cp_example,
+     variables = c('sex'), 
+     variable_type = 'categorical') +
+     ggtitle("Ceteris Paribus Profile - XGBoost")
+
+lrm_cp_example = DALEX::individual_profile(lrm_explain, data_valid[2657, ] %>% as.data.frame)
+
+plot(lrm_cp_example,
+     variables = c('sex'), 
+     variable_type = 'categorical') +
+     ggtitle("Ceteris Paribus Profile - Logistic Regression")
+```
+
+Here we can see gender variable CP profiles for XGBoost and Logistic Regression models.
+
+Due to the additive nature of LR model, the overall higher mortality rate among men yields a positive effect
+for male indicator variable, which can also be seen above.
+
+However, for XGBoost model, male gender would decrease the mortality rate prediction by around 0.4%
+This suggests that the effect of gender varies across the observation space and interacts with other variables.

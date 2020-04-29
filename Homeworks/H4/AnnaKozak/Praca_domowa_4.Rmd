@@ -1,0 +1,264 @@
+---
+title: "Wyjaśnialne Uczenie Maszynowe - Praca domowa 4"
+author: "Anna Kozak"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(lubridate)
+library(gridExtra)
+library(splitTools)
+library(randomForest)
+library(dplyr)
+library(mlr)
+library(ranger)
+library(tidyr)
+
+dane <- read.csv("kc_house_data.csv")
+dane$years <- year(Sys.time()) - dane$yr_built
+dane$years_from_renovation <- year(Sys.time()) - dane$yr_renovated
+head(dane)
+dane_model <- dane[, c("price", "bedrooms", "bathrooms", "sqft_living", "sqft_lot", "floors", "waterfront", "view",
+                       "condition", "grade", "sqft_above", "sqft_basement", "zipcode", "lat", "long", "sqft_living15",
+                       "sqft_lot15", "years", "years_from_renovation")]
+dane_model$zipcode <- factor(dane_model$zipcode)
+dane_model$waterfront <- factor(dane_model$waterfront)
+options(scipen = 999)
+```
+
+## Zbiór danych
+
+Poniższa analiza została przygotowana na zbiorze danych opisujących sprzedaż domów (House Sales Prices). Poniżej lista zmiennych:
+
+- `price` cena nieruchomości
+- `bedrooms` liczba sypialni
+- `bathrooms` liczba łazienek
+- `sqft_living` powierzchnia użytkowa
+- `sqft_lot` powierzchnia gruntu
+- `floors` liczba pięter
+- `waterfront` czy nad wodą
+- `view` jakość widoku
+- `condition` stan 
+- `grade` jakość konstrukcji i wykończenia
+- `sqft_above` powierzchnia pięter
+- `sqft_basement` powierzchnia piwnicy
+- `yr_built` rok budowy
+- `yr_renovated`rok remontu
+- `zipcode` kod pocztowy
+- `lat` szerokość geograficzna
+- `long` długość geograficzna
+- `sqft_living15` średnia powierzchnia użytkowa dla 15-Nearest Neighbors
+- `sqft_lot15` średnia powierzchnia gruntu dla 15-Nearest Neighbors
+
+Do modelowania ceny sprzedaży domu (`price`) wybrano zmienne takie jak `bedrooms`, `bathrooms`, `sqft_living`, `sqft_lot`, `floors`, `waterfront`, `view`, `condition`, `grade`, `sqft_above`, `sqft_basement`, `zipcode`, `lat`, `long`, `sqft_living15`, `sqft_lot15` oraz dwie dodatkowo utworzone zmienne `years` opisującą wiek nieruchomośći i `years_from_renovation` czyli lata od remontu nieruchomości.
+
+
+## Wyjaśnienia
+
+Zbudowano model lasu losowego (`ranger`), zmienna objaśniana to cena nieruchomości. (Ad 1,2) Poniżej profile Ceteris Paribus dla wybranej obserwacji. (Ad 3)
+
+```{r, include=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+# tsk <- makeRegrTask(data = dane_train, target = "price")
+# ps <- makeParamSet(
+#   makeIntegerParam("num.trees", lower = 50, upper = 1000),
+#   makeIntegerParam("mtry", lower = 1, upper = 4),
+#   makeIntegerLearnerParam("min.node.size", lower = 1, upper = 100))
+# 
+# ctrl <- makeTuneControlRandom(maxit = 100L)
+# rdesc <- makeResampleDesc("CV", iters = 3L)
+# res <- tuneParams("regr.ranger", 
+#                   task = tsk, 
+#                   resampling = rdesc,
+#                   par.set = ps, 
+#                   control = ctrl, 
+#                   measures = rmse)
+# lrn <- setHyperPars(makeLearner("regr.ranger"), 
+#                     num.trees = res$x$num.trees, 
+#                     mtry = res$x$mtry,
+#                     min.node.size = res$x$min.node.size)
+# 
+# mod_zipcode <- train(lrn, tsk)
+
+load("AnnaKozak/mod_zipcode.rda")
+```
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(DALEX)
+library(DALEXtra)
+explain_mod <- DALEXtra::explain_mlr(model = mod_zipcode, data = dane_model, y = dane_model$price)
+```
+
+Zmienne ciągłe w modelu.
+
+```{r, fig.width=12, fig.height=10, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+library(ingredients)
+explain_mod$label <- "ranger"
+cp_ranger <- ceteris_paribus(explain_mod, dane_model[2,])
+plot(cp_ranger, variables = names(dane_model)[-1]) + show_observations(cp_ranger, variables = names(dane_model)[-1])
+```
+
+Zmienne kategoryczne w modelu.
+
+```{r, fig.width=12, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+p1 <- plot(cp_ranger, variable_type = "categorical", variables = "waterfront", categorical_type = "bars") + show_observations(cp_ranger, variables = "waterfront")
+p2 <- plot(cp_ranger, variable_type = "categorical", variables = "zipcode", categorical_type = "bars") + show_observations(cp_ranger, variables = "zipcode") + theme(axis.text.y = element_text(size = 7))
+grid.arrange(p1, p2, widths = c(1,2))
+```
+
+
+Powyżej wykresy Ceteris Paribus dla wybranej obserwacji. Analizujemy każdą ze zmiennych zakładając zgodnie z definicją, że pozostałe zmienne zostają nie zmienione, a patrzymy na to jak zmienia się wartość predykcji dla zmiany wartości rozpatrywanej zmiennej. Oglądając otrzymane wykresy możemy zauważyć, że przy zmianie wartości dla zmiennych 
+
+- liczba pokoi (`bedrooms`)
+
+- liczba pięter (`floors`)
+
+- stan (`condition`)
+
+- średnia powierzchnia gruntu dla 15 najblizszych sąsiadów (`sqft_lot15`)
+
+- lata od remontu nieruchomości (`years_from_renovation`)
+
+predykcja modelu się nie zmieni czyli cena nieruchomości ani nie maleje ani nie rośnie. Dodanie dodatkowej łazienki wpłynie na cenę (`bathrooms`). Zwiększenie powierzchni użytkowej nieruchomości (`sqft_living`) znacząco wpływa na cenę, nawet 1.5 raza. Jeżli nasza nieruchmość miałaby lepszy widok (mam w skali oceny najgorszy) to cena wzrostłaby znacząco. Poprawa jakości konstrukcji i wykończenia (`grade`) może zwiększyć cenę nieruchomości dwukrotnie, ale pogorszenie nie wpłynie na cenę.
+
+Zwiększenie powierzchni pięter (`sqft_above`) zwiększa cenę oraz analogicznie zmiejszenie zmniejsza cenę.
+
+Położenie nieruchomości ma zauważany wpływ na cenę, nieruchomośi na południe od rozważanej mają nieco większą predykcję, jednak po osiągnięciu pewnej wartości prognoza obniża się znacząco. 
+
+Dla długości geograficznej nie ma aż tak dużej zależności, jedynie nieruchomości położone na zachodzie mają większą predykcję, może to być spowodowane tym, że tam znajduje się centrum miasta.
+
+Większa wartość zmiennej odpowiadającej średniej powierzchni użytkowej dla 15 najbliższych sąsiadów (`sqft_living15`) zwiększa predykcję ceny nieruchomości.
+
+Ostatnią zmienną ciągłą w modelu jest wiek nieruchomości (`year`), gdyby nasz dom być nieco starszy jego cena mogłaby wzrosnąć, jednocześnie nieruchomości o mniejszym wieku byłyby tańsze. 
+
+Dodatkowo w modelu mamy dwie zmienne kategoryczne: czy jest widok na wodę (`waterfront`) - zmienna binarna oraz kod pocztowy (`zipcode`) przyjmujący 70 wartości. 
+
+Jeżeli nasza nieruchomośc miałaby widok na wodę wtedy cena znacząco wzrasta, około 1.5 raza. 
+
+Patrząc na profil Ceteris Paribus dla zmiennej kod pocztowy możemy zauważyć, że jeśli nieruchmość byłby wybudowana w innym położeniu, cena mogłaby wzrosnąć nawet 1.5 raza. Istnieje kilka lokalizacji, w których cena mogłaby zmaleć, jednak przeważa liczba kodów pocztowych, w których cena będzie wyższa.
+
+
+W celu poszukania obserwacji dla których profile Ceteris Paribus będą różne wybrano losowo 200 obserwacji i wyrysowano profile. Dodatkowo narysowano PDP (Partial Dependency Plot). 
+
+
+```{r, fig.width=12, fig.height=10, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, include=FALSE}
+library(ingredients)
+explain_mod$label <- "ranger"
+set.seed(1404)
+samplee <- sample(nrow(dane_model), 200)
+cp_ranger <- ceteris_paribus(explain_mod, dane_model[samplee,])
+pdp <- aggregate_profiles(cp_ranger)
+```
+
+```{r, fig.width=12, fig.height=10, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+plot(cp_ranger, variables = names(dane_model)[-1]) + show_aggregated_profiles(pdp, size =2, variables = names(dane_model)[-1])
+```
+
+W modelu lasu losowego nie zauważono interakcji, być może model jest addytywny. W tym celu zbudowano kolejny model, tym razem jest to gradient boosting machine (gbm). (Ad 4)
+
+```{r, fig.width=12, fig.height=10, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE, include=FALSE}
+# tsk <- makeRegrTask(data = dane_train, target = "price")
+# ps <- makeParamSet(
+#   makeIntegerParam("n.trees", lower = 50, upper = 1000),
+#   makeIntegerParam("interaction.depth", lower = 2, upper = 10))
+# 
+# ctrl <- makeTuneControlRandom(maxit = 100L)
+# rdesc <- makeResampleDesc("CV", iters = 3L)
+# res <- tuneParams("regr.gbm", 
+#                   task = tsk, 
+#                   resampling = rdesc,
+#                   par.set = ps, 
+#                   control = ctrl, 
+#                   measures = rmse)
+# lrn <- setHyperPars(makeLearner("regr.gbm"), 
+#                     par.vals = res$x)
+# 
+# mod_gbm <- train(lrn, tsk)
+
+load("AnnaKozak/mod_zipcode_gbm.rda")
+explain_mod_gbm <- DALEXtra::explain_mlr(model = mod_zipcode, data = dane_model, y = dane_model$price)
+explain_mod_gbm$label <- "gbm"
+```
+
+```{r, fig.width=12, fig.height=10, echo=FALSE, warning=FALSE, message=FALSE, error=FALSE}
+cp_gbm <- ceteris_paribus(explain_mod_gbm, dane_model[c(14924, 13489),], variables = names(dane_model)[-1])
+plot(cp_gbm, color = "_ids_", variables = names(dane_model)[-1]) + show_observations(cp_gbm, variables = names(dane_model)[-1])
+```
+
+Na podstawie powyższych profili Ceteris Paribus dla dwóch wybranych obserwacji możemy zaobserwować, że dla zmiennej `sqft_living` się różnią. Dla obserwacji `14924` zwiększenie powierzchni mieszkalnej powoduje zwiększenie predykcji ceny mieszkania, natomiast dla obserwacji `13489` wraz ze wzrostem powierzchni użytkowej na początku delikatnie rośnie, a następnie maleje. Ten związek może być spowodowany interakcją w modelu, na przykład ze zmienną `sqft_basement`.
+
+Następnie zbudowano model regrsji liniowej. Wybrano obserwację i dla niej wyrysowano profile Ceteris Paribus z trzech modeli. (Ad 5)
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=10, fig.width=10, echo = FALSE, include=FALSE}
+explain_mod$label <- "ranger"
+cp_ranger <- ceteris_paribus(explain_mod, dane_model[2,])
+tsk <- makeRegrTask(data = dane_model, target = "price")
+lrn <- makeLearner("regr.lm")
+mod_lm <- train(lrn, tsk)
+explain_mod_lm <- explain(mod_lm, dane_model, dane_model$price, label = "lm")
+cp_lm <-ceteris_paribus(explain_mod_lm, dane_model[2,])
+cp_gbm <- ceteris_paribus(explain_mod_gbm, dane_model[2,])
+
+```
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=10, fig.width=10}
+plot(cp_ranger, cp_gbm, cp_lm, color="_label_", variables = names(dane_model)[-1]) + show_observations(cp_ranger, cp_gbm, cp_lm, variables = names(dane_model)[-1]) + facet_wrap(~`_vname_`, scales = "free", ncol = 4)
+```
+
+
+Przyglądając się poszczególnym zmiennym oraz profilom Ceteris Paribus możemy zauważyć: 
+
+- dla zmiennej `bedrooms` (liczba pokoi) profil modelu gbm i ranger wygądają bardzo podobnie, natomiast dla modelu liniowego predykcja ceny zmiejsza się wraz z liczbą pokoi (możliwa interakcja)
+
+- dla zmiennej `bathrooms` (liczba łazienek) profil modelu gbm i ranger zaczynają się podobnie, jednak dla większych wartości predykcja modelu gbm jest większa, model liniowy przewiduje zdecydowanie większe wartości predykcji od pozostałych
+
+- dla zmiennej `sqft_living` (powierzchnia użytkowa) pofile zaczynają się w tej samej wartości, ze wzrostem wartości zmiennej model gbm i ranger zachowują się podobnie, regresja liniowa przyjmuje dużo większe wartości
+
+- dla zmiennej `sqft_lot` profil gbm przyjmuje większe wartości predykcji niż ranger (ale są równolegle)
+
+- dla zmiennej `floors` profil obserwacji dla modelu gbm wydaje się być płaski, zmiana wartości zmiennej nie ma wpływu na predykcję ceny, natomiast dla modelu liniowego, predykcja ceny maleje ze zwiększeniem liczby pięter, natomiast dla ranger rośnie
+
+- dla zmiennej `view` profile dla poszczególnych modeli są do siebie równoległe z przesunięciem wartości predykcji
+
+- dla zmiennej `condition` profile dla modelu regresji i gbm są równoległe, dla modelu random forest nie widać większej różnicy przy zmianie wartości zmiennej
+
+- dla zmiennej `grade` (jakoś konstrukcji i wykończenia) wszystkie profile zgodnie pokazują wzrost ceny nieruchmości wraz ze wzrostem zmiennej 
+
+- dla zmiennej `sqft_above` profile dla modelu regresji liniowej oraz gbm zachowują się podobnie, mimo wypłaszczenia na początku dla gbm, model lasu losowego osiąga pewną wartośc, a potem wypłaszcza się wraz ze wzrostem wartości zmiennej
+
+- dla zmiennej `sqft_basement` profil dla modelu liniowego jest stały bez względu na zmianę wartości zmiennej, ranger zachowuje się podobnie, natomiast dla gbm im większa powierzchnia piwnicy tym predykcja wartości nieruchomości maleje
+
+- dla zmiennej `lat`profil obserwacji dla modelu gbm i ranger w pewnym momencie się pokrywają, dla pozostałych wartości różnią się wartościami, ale zachowują równoległość
+
+- dla zmiennej `long` porofile podobnie jak dla szerekości geograficznej, gbm oraz ranger zachowują się podobnie
+
+- dla zmiennej `sqft_living15` profile dla mniejszych wartości zmiennej zachowają się podobnie, natomiast dla większych wartoścli model regresji oraz las losowy przyjmują podobne wartości, profil dla modelu gbm ma znacząco wyższe wartości od pozostałcyh
+
+- dla zmmiennej `sqft_lot15` profil dla modelu liniowego przyjuje coraz mniejsze wartości predykcji przy wzroście wartości zmiennej, dla modelu gbm jest nagły zwrost, a później stabilizacja, dla modelu ranger przeciwnie, nagły spadek i poźniej również stabilizacja
+
+- dla zmiennej `years` profile gbm i ranger dla małych wartości zmiennej zachowują się różnie, gbm przyjmuje dużo większe wartości, dla większych wartości zachowują się podobnie, dla modelu regresji liniowej cena wzrasta wraz z wiekiem budynku 
+
+- dla zmiennej `years_from_renovation` profile ukazują wysoką predykcję ceny dla małych wartości zmiennej, następnie predykcja maleje, dla regresji liniowej w sposób liniowy, dla gbm i ranger jest to gwałtowny spadek wartości predykcji
+
+
+
+## Podsumowanie
+
+
+Profile Ceteris Paribus przedstawiają łatwe podejście do badania modeli. Graficzna reprezentacja jest zrozumiała oraz intuicyjna przez co prosto wyjaśnia jak zmieni się wartość predykcji modelu dla danej obserwacji przy zmianie wartości zmiennej. Profile możemy łatwo ze sobą porównywać, zarówno dla porównania dwóch różnych obserwacji na podstawie jednego modelu jak i przy porównaniu profili dla różnych modeli. Pozwala nam to za ocenę jak dziają modele i na porównać ich stabilność. 
+
+Z drugiej strony, jeśli zmienne są ze sobą skorelowane to zmiana wartości jednej zmiennej powoduje zmianę dla innej, przez co profile Ceteris Paribus mogą być mylące. Dodatkowo użycie profili dla zmiennych kategorycznych jest mniej trywialne niż dla zmiennych ciągłych.
+
+
+
+
+
+
