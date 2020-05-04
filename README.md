@@ -38,9 +38,9 @@ Plan for the summer semester 2019/2020. WUT classes are on Thursdays, UoW classe
 * 2020-04-02/03 -- [XAI stories: first version of the solution]
 * 2020-04-08/09 --  Interactive Explanatory Model Analysis - how instance level methods complement each other
 * 2020-04-16/17 -- Variable's importance. [EMA chapter](https://pbiecek.github.io/ema/featureImportance.html), [paper pvi](https://arxiv.org/abs/1801.01489)
-* 2020-04-23/24 -- [XAI stories: second version of the solution]
+* 2020-04-23/24 -- Discussions related to XAI chapters / interactive XAI
 * 2020-04-30 --  TBA
-* 2020-05-07 --  TBA
+* 2020-05-08 --  [XAI stories: second version of the solution] (both groups)
 * 2020-05-14/15 -- Model diagnostic plots. [EMA chapter](https://pbiecek.github.io/ema/residualDiagnostic.html), [paper auditor](https://arxiv.org/abs/1809.07763)
 * 2020-05-21/22 -- students presentations
 * 2020-05-28/29 -- students presentations
@@ -66,7 +66,7 @@ Home works [0-30 points]
  - [home work 2](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H2/README.md) for 0-5 points. **Deadline: 2020-03-26**
  - [home work 3](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H3/README.md) for 0-5 points. **Deadline: 2020-04-09**
  - [home work 4](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H4/README.md) for 0-5 points. **Deadline: 2020-04-16**
- - [home work 5](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H5/README.md) for 0-5 points. **Deadline: 2020-04-30**
+ - [home work 5](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H5/README.md) for 0-5 points. **Deadline: 2020-05-04**
  - [home work 6](https://github.com/pbiecek/InterpretableMachineLearning2020/blob/master/Homeworks/H6/README.md) for 0-5 points. **Deadline: 2020-05-14**
 
 
