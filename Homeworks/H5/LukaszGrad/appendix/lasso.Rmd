@@ -1,0 +1,70 @@
+---
+title: "Simple XGBoost"
+output: html_notebook
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(GGally)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(glmnet)
+
+source('../data_utils.R')
+```
+
+```{r}
+data = read_modelling('../data', target_col = 'recid')
+data = split_data(data)
+
+data$train %>% head()
+```
+
+```{r}
+set.seed(42)
+folds = caret::groupKFold(data$train$person_id, k = 5)
+folds_test = lapply(folds, function(x) (1:nrow(data$train))[-x])
+
+xlevs_train = data$train %>% select(-recid)
+xlevs <- lapply(xlevs_train[, sapply(data$train %>% select(-recid), is.factor), drop = F], function(j){
+    levels(j)
+})
+```
+
+```{r}
+dtrain = model.matrix(recid ~ . - person_id - 1, 
+                      data = data$train)
+foldid = rep(-1, nrow(dtrain))
+for (i in 1:length(folds_test)) {
+    foldid[folds_test[[i]]] = i
+}
+
+cv_glmnet = cv.glmnet(dtrain, data$train$recid == 1, family = 'binomial', foldid = foldid,
+                      type.measure = 'deviance', keep = TRUE)
+plot(cv_glmnet)
+```
+
+```{r}
+glmnet_predict = function(model, data) {
+    data = model.matrix(recid ~ . - person_id - 1, data = data, xlev = xlevs)
+    predict(model, data, type = 'response', s = 'lambda.min')[, 1]
+}
+
+cv_glmnet_explain = DALEX::explain(cv_glmnet, data = data$test,
+                                    y = data$test$recid == 1, 
+                                    type = 'classification', label = 'Lasso CV',
+                                    predict_function = glmnet_predict)
+```
+
+```{r}
+glmnet_perf = DALEX::model_performance(cv_glmnet_explain, cutoff = 0.37)
+glmnet_perf
+```
+
+```{r}
+save(cv_glmnet_explain, cv_glmnet, file = 'lasso_all.RData')
+```
+
