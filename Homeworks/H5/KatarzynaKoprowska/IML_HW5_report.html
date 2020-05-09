@@ -13371,7 +13371,7 @@ dtype: int64</pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Mimo bardzo dobrych wyników predykcji wagi zmiennych w modelu nie do końca odpowiada tym, które są wynikiem permutacji zmiennych.</p>
-<p>Zmienna <em>DEBTINC</em> jest zdecydowanym faworytem w obu analizach, pozycje dwóch kolejnych zmiennych – <em>CLAGE</em>, czyli wiek najdłuższej lini kredytowej oraz <em>DELINQ</em>, czyli liczba opóźnionych linii kredytowych – już się nie zgadzają. Nie są to jednak duże różnice i przy dużej rozpiętości wag, jaką możemy zaobserwować na załączonym wykresie pudełkowym, nie wydaje się być to powodem do niepokoju.</p>
+<p>Zmienna <em>DEBTINC</em> (stosunek długu do dochodu) jest zdecydowanym faworytem w obu analizach, pozycje dwóch kolejnych zmiennych – <em>CLAGE</em>, czyli wiek najdłuższej otwartego rachunku oraz <em>DELINQ</em>, czyli liczba opóźnionych linii kredytowych – już się nie zgadzają. Nie są to jednak duże różnice i przy dużej rozpiętości wag, jaką możemy zaobserwować na załączonym wykresie pudełkowym, nie wydaje się być to powodem do niepokoju.</p>
 <p>Dalsze wyniki są nieco bardziej zastanawiające: zmienna <em>VALUE</em>, czyli wartość nieruchomości pod hipoteką, wysforowała znacząco na przód w przypadku analizy opartej o permutacje zmiennych, wychodząc na czwartą pozycję, mimo że wg wag z modelu zajmuje dopiero 7 miejsce. Jest to tym bardziej zaskakujące, że w przypadku tej zmiennej nie mamy do czynienia z dużą rozpiętością wag i, poza "outlierami" granice wykresów pudełkowych nie zazębiają się.</p>
 <p>Pozostałe zmienne również mają pewne "zawirowania" jeśli chodzi o różnice w kolejności w obu analizach, jednak przy tak dużej zmienności ich wag w analizie permutacyjnej nie jest to alarmujące.</p>
 
@@ -13529,8 +13529,8 @@ dtype: int64</pre>
 <p>Powyżej również mamy przykład silnego lidera w postaci zmiennej <em>DEBTINC</em>, dokładnie tej samej, co w przypadku modelu lasu losowego.</p>
 <p>Dalej jest jednak dużo ciekawiej, ponieważ, na pierwszy rzut oka przynajmniej, wszystko wydaje się nie zgadzać.</p>
 <p>Najbardziej zaskakująca jest różnica pozycji zmiennej <em>YOJ</em>, oznaczającej liczbę lat w obecnej pracy. Już podczas analiz instancji widoczna była rozbieżność między wpływem tej zmiennej w AdaBooście (który niemal dla każdej badanej obserwacji był spory), a jej bardzo małym znaczeniem dla predykcji wykonanych przez model lasu losowego. Tutaj również widzimy, że według modelu jej waga jest na drugim miejscu (8. w lesie losowym), mimo to, w analizie permutacyjnej zmienna ta znajduje się na "szarym końcu".</p>
-<p>Zmienne takie jak <em>CLNO</em>, <em>LOAN</em>, <em>MORTDUE</em> i <em>CLAGE</em> mają bardzo podobne wyniki w skali adaboostowej, zaburzenia ich kolejności w analizie permutacyjnej nie powinny więc bardzo dziwić, zwłaszcza biorąc pod uwagę rozpiętość wartości wśród iteracji. Dodatkowo, ich miejsce w hierarchii jest podobne, co w modelu lasu losowego.</p>
-<p>Ostatnią niepokojącą kwestią jest niezgodność rezultatów uzyskanych dla zmiennych <em>NINQ</em> i <em>DELINQ</em>: mimo niemal takich samych wag w modelu, w analizie opartej o permutacje różnią się znacznie i w rankingu są odseparowane od siebie 3 innymi zmiennymi.</p>
+<p>Zmienne takie jak <em>CLNO</em> (liczba linii kredytowych), <em>LOAN</em> (wnioskowana kwota pożyczki), <em>MORTDUE</em> (kwota pozostała do spłacenia na posiadanym kredycie hipotecznym) i <em>CLAGE</em> (wiek najdłuższej otwartego rachunku) mają bardzo podobne wyniki w skali adaboostowej, zaburzenia ich kolejności w analizie permutacyjnej nie powinny więc bardzo dziwić, zwłaszcza biorąc pod uwagę rozpiętość wartości wśród iteracji. Dodatkowo, ich miejsce w hierarchii jest podobne, co w modelu lasu losowego.</p>
+<p>Ostatnią niepokojącą kwestią jest niezgodność rezultatów uzyskanych dla zmiennych <em>NINQ</em> (liczba ostatnio otwartych linii kredytowych) i <em>DELINQ</em> (liczba opóźniających się linii kredytowych): mimo niemal takich samych wag w modelu, w analizie opartej o permutacje różnią się znacznie i w rankingu są odseparowane od siebie 3 innymi zmiennymi, może to być jednak spowodowane ich zależnością od siebie.</p>
 
 </div>
 </div>
@@ -13655,8 +13655,8 @@ dtype: int64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Tradycyjnie pierwsze skrzypce gra zmienna <em>DEBTINC</em>, jeszcze istotniej deklasując rywali niż w poprzednich dwóch analizach.</p>
-<p>Dalej sytuacja się ustabilizowała i kolejne dwie zmienne, <em>DELINQ</em> oraz <em>CLAGE</em> są w odpowiedniej kolejności, co więcej, zgodnej z tą ustaloną przez pierwszy model, nie przez wagi uzyskane w wyniku permutacji – tym razem <em>DELINQ</em>, czyli liczba opóźnionych linii kredytowych, jest znacznie istotniejsza od <em>CLAGE</em>, czyli wieku najstarszej linii kredytowej.</p>
+<p>Tradycyjnie pierwsze skrzypce gra zmienna <em>DEBTINC</em> (stosunek długu do dochodu), jeszcze istotniej deklasując rywali niż w poprzednich dwóch analizach.</p>
+<p>Dalej sytuacja się ustabilizowała i kolejne dwie zmienne, <em>DELINQ</em> oraz <em>CLAGE</em> są w odpowiedniej kolejności, co więcej, zgodnej z tą ustaloną przez pierwszy model, nie przez wagi uzyskane w wyniku permutacji – tym razem <em>DELINQ</em>, czyli liczba opóźnionych linii kredytowych, jest znacznie istotniejsza od <em>CLAGE</em>, czyli wieku najdłuższej otwartego rachunku.</p>
 <p>W dalszej kolejności w analizie permutacyjnej możemy dostrzec uprzednio niedocenianą na wszystkich frontach zmienną <em>DEROG</em>, oznaczającą liczbę niekorzystnych raportów kredytowych – niewykluczone, że część jej wpływu była uwikłana we wkłady tych zmiennych, które zostały wyłączone z obecnego modelowania.</p>
 <p>Pozostałe zmienne zachowują się podobnie w obu analizach, ich wyniki są także bliskie rezultatom z omawiania pierwszego modelu lasu losowego.</p>
 
@@ -13697,8 +13697,8 @@ dtype: int64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Tutaj z kolei mamy zaskoczenie: zmienna <em>DEBTINC</em> została zdetronizowana i zastąpiona przez <em>CLAGE</em> wśród rankingu wag pochodzącego z modelu, mimo że w poprzedniej analizie AdaBoosta była ona dopiero na 5. miejscu. Takiego obrazu wpływu zmiennych na wynik nie potwierdza jednak analiza permutacyjna, która twardo obstaje przy dekorowaniu <em>DEBTINC</em> złotym medalem za zasługi na rzecz predykcji.</p>
-<p>Kolejnym zaskoczeniem jest ranga zmiennej <em>YOJ</em>: wcześniej wyniesiona przez model na zaszczytne drugie miejsce, teraz zbliżyła się do swojej odpowiedniczki z analizy permutacyjnej (najmniejszy wkład) i zajęła przedostatnią pozycję.</p>
+<p>Tutaj z kolei mamy zaskoczenie: zmienna <em>DEBTINC</em> (stosunek długu do dochodu) została zdetronizowana i zastąpiona przez <em>CLAGE</em> wiek najdłuższej otwartego rachunku) wśród rankingu wag pochodzącego z modelu, mimo że w poprzedniej analizie AdaBoosta była ona dopiero na 5. miejscu. Takiego obrazu wpływu zmiennych na wynik nie potwierdza jednak analiza permutacyjna, która twardo obstaje przy dekorowaniu <em>DEBTINC</em> złotym medalem za zasługi na rzecz predykcji.</p>
+<p>Kolejnym zaskoczeniem jest ranga zmiennej <em>YOJ</em>, czyli liczby lat w obecnej pracy: wcześniej wyniesiona przez model na zaszczytne drugie miejsce, teraz zbliżyła się do swojej odpowiedniczki z analizy permutacyjnej (najmniejszy wkład) i zajęła przedostatnią pozycję.</p>
 <p>Pozostałe zmienne mają dość podobny wkład w predykcję w obu analizach.</p>
 
 </div>
@@ -13732,7 +13732,7 @@ dtype: int64</pre>
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Macierz korelacji zmiennych może częściowo tłumaczyć rozbieżności w rankingu wyprodukowanym przez model oraz permutacyjnym, szczególnie dla silnie skorelowanych zmiennych jakimi są <em>MORTDUE</em>, czyli kwota pozostała do spłacenia oraz <em>VALUE</em>, czyli wartość nieruchomości i <em>CLNO</em>, czyli liczba linii kredytowych – model niejako "uśrednił" ich wpływ.</p>
-<p>Podobnie można interpretować niską pozycję zmiennej <em>CLAGE</em> w pierwszym modelu AdaBoost: przez dość wysoką korelację ze zmienną <em>YOJ</em>, to ta druga "przejęła zasługi".</p>
+<p>Podobnie można interpretować niską pozycję zmiennej <em>CLAGE</em> w pierwszym modelu AdaBoost: przez dość wysoką korelację ze zmienną <em>YOJ</em> (liczba lat w obecnej pracy), to ta druga "przejęła zasługi".</p>
 
 </div>
 </div>
