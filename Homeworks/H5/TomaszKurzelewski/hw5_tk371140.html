@@ -10630,7 +10630,7 @@ div.input {
     box-orient: vertical;
     box-align: stretch;
     /* Modern browsers */
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: stretch;
   }
@@ -11040,6 +11040,7 @@ div.output_text {
 /* stdout/stderr are 'text' as well as 'stream', but execute_result/error are *not* streams */
 div.output_stderr {
   background: #fdd;
+  display:none;
   /* very light red background for stderr */
 }
 div.output_latex {
@@ -13079,6 +13080,15 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p><h5 style="text-align:right">10.05.2020</h5></p>
+<p><h2 style="text-align:center">Praca domowa 5</h2></p>
+<h4 style="text-align:center">Tomasz Kurzelewski</h4>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>Tak jak w poprzednich zadaniach domowych pracujemy na zbiorze danych HELOC. Wytrenujmy na nich model XGBoost. Jak widać z poniższej tabelki najbardziej znacząca jest zmienna ExternalRiskEstimate. Jest to zgodne z poprzednimi doświadczeniami, ponieważ samą tą zmienną można dość dobrze wytłumaczyć wynik (accuracy 0.70). Zauważmy również jak bardzo ta zmienna dominuje nad pozostałymi. Waga drugiej w kolejności zmiennej jest blisko 9-krotnie mniejsza niż pierwszej. Widzimy też że 6 zmiennych ma niedodatnią wartość, co znaczy że po usunięciu nich powinniśmy otrzymać lepszy model.</p>
 
 </div>
@@ -13161,10 +13171,32 @@ div#notebook {
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/home/tomasz/Projects/kredyty/venv/lib/python3.8/site-packages/sklearn/utils/deprecation.py:144: FutureWarning: The sklearn.metrics.scorer module is  deprecated in version 0.22 and will be removed in version 0.24. The corresponding classes / functions should instead be imported from sklearn.metrics. Anything that cannot be imported from sklearn.metrics is now part of the private API.
+  warnings.warn(message, FutureWarning)
+/home/tomasz/Projects/kredyty/venv/lib/python3.8/site-packages/sklearn/utils/deprecation.py:144: FutureWarning: The sklearn.feature_selection.base module is  deprecated in version 0.22 and will be removed in version 0.24. The corresponding classes / functions should instead be imported from sklearn.feature_selection. Anything that cannot be imported from sklearn.feature_selection is now part of the private API.
+  warnings.warn(message, FutureWarning)
+Using TensorFlow backend.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBRFClassifier</span><span class="p">()</span>
@@ -13177,6 +13209,392 @@ div#notebook {
 <span class="n">xgb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtrain</span><span class="p">,</span> <span class="n">Ytrain</span><span class="p">)</span>
 <span class="n">xgbImportance</span> <span class="o">=</span> <span class="n">PermutationImportance</span><span class="p">(</span><span class="n">xgb</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xtest</span><span class="p">,</span> <span class="n">Ytest</span><span class="p">)</span>
 <span class="n">eli5</span><span class="o">.</span><span class="n">show_weights</span><span class="p">(</span><span class="n">xgbImportance</span><span class="p">,</span> <span class="n">feature_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">orig</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt output_prompt">Out[3]:</div>
+
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+
+    <style>
+    table.eli5-weights tr:hover {
+        filter: brightness(85%);
+    }
+</style>
+
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+        <table class="eli5-weights eli5-feature-importances" style="border-collapse: collapse; border: none; margin-top: 0em; table-layout: auto;">
+    <thead>
+    <tr style="border: none;">
+        <th style="padding: 0 1em 0 0.5em; text-align: right; border: none;">Weight</th>
+        <th style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">Feature</th>
+    </tr>
+    </thead>
+    <tbody>
+    
+        <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0845
+                
+                    &plusmn; 0.0176
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                ExternalRiskEstimate
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 96.48%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0071
+                
+                    &plusmn; 0.0034
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                AverageMInFile
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.55%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0042
+                
+                    &plusmn; 0.0029
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceMostRecentInqexcl7days
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.96%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0033
+                
+                    &plusmn; 0.0037
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumSatisfactoryTrades
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.04%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0031
+                
+                    &plusmn; 0.0029
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceOldestTradeOpen
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.08%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0030
+                
+                    &plusmn; 0.0033
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumBank2NatlTradesWHighUtilization
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.31%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0025
+                
+                    &plusmn; 0.0019
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumRevolvingTradesWBalance
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.35%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0024
+                
+                    &plusmn; 0.0049
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NetFractionRevolvingBurden
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.35%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0024
+                
+                    &plusmn; 0.0074
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                PercentTradesNeverDelq
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.01%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0011
+                
+                    &plusmn; 0.0025
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MaxDelqEver
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.01%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0011
+                
+                    &plusmn; 0.0037
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                PercentTradesWBalance
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.47%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0005
+                
+                    &plusmn; 0.0029
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MaxDelq2PublicRecLast12M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.47%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0005
+                
+                    &plusmn; 0.0006
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTrades90Ever2DerogPubRec
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.47%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0005
+                
+                    &plusmn; 0.0006
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumInstallTradesWBalance
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.54%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0004
+                
+                    &plusmn; 0.0014
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTotalTrades
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.72%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0002
+                
+                    &plusmn; 0.0005
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumInqLast6Mexcl7days
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.83%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0001
+                
+                    &plusmn; 0.0009
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NetFractionInstallBurden
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 100.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0
+                
+                    &plusmn; 0.0000
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumInqLast6M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 100.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0000
+                
+                    &plusmn; 0.0006
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTradesOpeninLast12M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 99.83%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0001
+                
+                    &plusmn; 0.0007
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceMostRecentTradeOpen
+            </td>
+        </tr>
+    
+    
+        
+            <tr style="background-color: hsl(0, 100.00%, 99.83%); border: none;">
+                <td colspan="2" style="padding: 0 0.5em 0 0.5em; text-align: center; border: none; white-space: nowrap;">
+                    <i>&hellip; 3 more &hellip;</i>
+                </td>
+            </tr>
+        
+    
+    </tbody>
+</table>
+    
+
+    
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+
+
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Wytrenujmy teraz trzy inne modele. Tym razem wykluczymy zmienną ExternalRiskEstimate, ponieważ ona zbyt bardzo przysłania pozostałe zmienne. Użyjemy ponownie model XGBoost i dwa modele lasu losowego, wytrenowane z różnymi konfiguracjami: pierwszy wyskorzystujący tylko jedną zmienną w każdym drzewie, a drugi maksymalnie 5 zmiennych w jednym drzewie.</p>
+<p>Xgb bez ExternalRiskEstimate:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">XtrainWoERE</span><span class="p">,</span> <span class="n">XtestWoERE</span> <span class="o">=</span> <span class="n">Xtrain</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">Xtest</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[5]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBRFClassifier</span><span class="p">()</span>
+<span class="n">xgb</span><span class="o">.</span><span class="n">missing</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9</span>
+<span class="n">xgb</span><span class="o">.</span><span class="n">reg_lambda</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">xgb</span><span class="o">.</span><span class="n">reg_alpha</span> <span class="o">=</span> <span class="mi">10</span>
+<span class="n">xgb</span><span class="o">.</span><span class="n">colsample_bytree</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">xgb</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">xgb</span><span class="o">.</span><span class="n">monotone_constraints</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">mon_def</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;ExternalRiskEstimate&#39;</span><span class="p">])</span>
+<span class="n">xgb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">XtrainWoERE</span><span class="p">,</span> <span class="n">Ytrain</span><span class="p">)</span>
+<span class="n">xgbImportance</span> <span class="o">=</span> <span class="n">PermutationImportance</span><span class="p">(</span><span class="n">xgb</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">XtestWoERE</span><span class="p">,</span> <span class="n">Ytest</span><span class="p">)</span>
+<span class="n">eli5</span><span class="o">.</span><span class="n">show_weights</span><span class="p">(</span><span class="n">xgbImportance</span><span class="p">,</span> <span class="n">feature_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">orig</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
 </pre></div>
 
     </div>
@@ -13249,33 +13667,9 @@ div#notebook {
     
         <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0648
+                0.0372
                 
-                    &plusmn; 0.0193
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                ExternalRiskEstimate
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 95.72%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0072
-                
-                    &plusmn; 0.0063
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                AverageMInFile
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 96.21%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0060
-                
-                    &plusmn; 0.0054
+                    &plusmn; 0.0103
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13283,71 +13677,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 97.59%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 85.57%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0032
+                0.0233
                 
-                    &plusmn; 0.0021
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumSatisfactoryTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 97.64%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0031
-                
-                    &plusmn; 0.0008
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentInqexcl7days
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 98.07%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0023
-                
-                    &plusmn; 0.0011
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTotalTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 98.24%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0020
-                
-                    &plusmn; 0.0016
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceOldestTradeOpen
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 98.42%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0017
-                
-                    &plusmn; 0.0019
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                PercentTradesWBalance
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 98.48%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0016
-                
-                    &plusmn; 0.0043
+                    &plusmn; 0.0093
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13355,313 +13689,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 98.68%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 86.20%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0013
+                0.0219
                 
-                    &plusmn; 0.0045
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentDelq
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.11%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0008
-                
-                    &plusmn; 0.0010
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                PercentInstallTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.27%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0006
-                
-                    &plusmn; 0.0004
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInqLast6Mexcl7days
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.36%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0005
-                
-                    &plusmn; 0.0006
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTrades90Ever2DerogPubRec
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.55%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0003
-                
-                    &plusmn; 0.0005
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInqLast6M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.79%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0001
-                
-                    &plusmn; 0.0020
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MaxDelq2PublicRecLast12M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.79%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0001
-                
-                    &plusmn; 0.0015
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTrades60Ever2DerogPubRec
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 100.00%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0000
-                
-                    &plusmn; 0.0016
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MaxDelqEver
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 100.00%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0
-                
-                    &plusmn; 0.0000
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NetFractionInstallBurden
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 100.00%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0
-                
-                    &plusmn; 0.0000
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInstallTradesWBalance
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 99.45%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0004
-                
-                    &plusmn; 0.0007
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentTradeOpen
-            </td>
-        </tr>
-    
-    
-        
-            <tr style="background-color: hsl(0, 100.00%, 99.45%); border: none;">
-                <td colspan="2" style="padding: 0 0.5em 0 0.5em; text-align: center; border: none; white-space: nowrap;">
-                    <i>&hellip; 3 more &hellip;</i>
-                </td>
-            </tr>
-        
-    
-    </tbody>
-</table>
-    
-
-    
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-
-
-</div>
-
-</div>
-
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div><div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<p>Wytrenujmy teraz trzy inne modele. Tym razem wykluczymy zmienną ExternalRiskEstimate, ponieważ ona zbyt bardzo przysłania pozostałe zmienne. Użyjemy ponownie model XGBoost i dwa modele lasu losowego, wytrenowane z różnymi konfiguracjami: pierwszy wyskorzystujący tylko jedną zmienną w każdym drzewie, a drugi maksymalnie 5 zmiennych w jednym drzewie.</p>
-<p>Xgb bez ExternalRiskEstimate:</p>
-
-</div>
-</div>
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[7]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">XtrainWoERE</span><span class="p">,</span> <span class="n">XtestWoERE</span> <span class="o">=</span> <span class="n">Xtrain</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">Xtest</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-<div class="prompt input_prompt">In&nbsp;[9]:</div>
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">xgb</span> <span class="o">=</span> <span class="n">XGBRFClassifier</span><span class="p">()</span>
-<span class="n">xgb</span><span class="o">.</span><span class="n">missing</span> <span class="o">=</span> <span class="o">-</span><span class="mi">9</span>
-<span class="n">xgb</span><span class="o">.</span><span class="n">reg_lambda</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">xgb</span><span class="o">.</span><span class="n">reg_alpha</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">xgb</span><span class="o">.</span><span class="n">colsample_bytree</span> <span class="o">=</span> <span class="mf">0.5</span>
-<span class="n">xgb</span><span class="o">.</span><span class="n">max_depth</span> <span class="o">=</span> <span class="mi">8</span>
-<span class="n">xgb</span><span class="o">.</span><span class="n">monotone_constraints</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">mon_def</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;ExternalRiskEstimate&#39;</span><span class="p">])</span>
-<span class="n">xgb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">XtrainWoERE</span><span class="p">,</span> <span class="n">Ytrain</span><span class="p">)</span>
-<span class="n">xgbImportance</span> <span class="o">=</span> <span class="n">PermutationImportance</span><span class="p">(</span><span class="n">xgb</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">XtestWoERE</span><span class="p">,</span> <span class="n">Ytest</span><span class="p">)</span>
-<span class="n">eli5</span><span class="o">.</span><span class="n">show_weights</span><span class="p">(</span><span class="n">xgbImportance</span><span class="p">,</span> <span class="n">feature_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">orig</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]))</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-
-<div class="output_area">
-
-    <div class="prompt output_prompt">Out[9]:</div>
-
-
-
-<div class="output_html rendered_html output_subarea output_execute_result">
-
-    <style>
-    table.eli5-weights tr:hover {
-        filter: brightness(85%);
-    }
-</style>
-
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-    
-
-    
-
-    
-
-    
-
-    
-        <table class="eli5-weights eli5-feature-importances" style="border-collapse: collapse; border: none; margin-top: 0em; table-layout: auto;">
-    <thead>
-    <tr style="border: none;">
-        <th style="padding: 0 1em 0 0.5em; text-align: right; border: none;">Weight</th>
-        <th style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">Feature</th>
-    </tr>
-    </thead>
-    <tbody>
-    
-        <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0346
-                
-                    &plusmn; 0.0072
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NetFractionRevolvingBurden
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 87.64%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0174
-                
-                    &plusmn; 0.0038
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumBank2NatlTradesWHighUtilization
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 90.23%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0124
-                
-                    &plusmn; 0.0080
+                    &plusmn; 0.0118
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13669,11 +13701,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 94.25%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 88.47%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0058
+                0.0169
                 
-                    &plusmn; 0.0066
+                    &plusmn; 0.0127
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13681,11 +13713,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 95.80%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 93.22%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0037
+                0.0079
                 
-                    &plusmn; 0.0042
+                    &plusmn; 0.0071
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13693,35 +13725,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 96.34%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 93.68%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0031
+                0.0072
                 
-                    &plusmn; 0.0026
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentInqexcl7days
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 96.92%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0024
-                
-                    &plusmn; 0.0049
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumSatisfactoryTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 97.18%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0021
-                
-                    &plusmn; 0.0047
+                    &plusmn; 0.0038
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13729,11 +13737,23 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 99.15%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 94.91%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0004
+                0.0053
                 
-                    &plusmn; 0.0024
+                    &plusmn; 0.0034
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceMostRecentInqexcl7days
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 96.22%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0034
+                
+                    &plusmn; 0.0027
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13741,11 +13761,95 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 99.15%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 96.67%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0029
+                
+                    &plusmn; 0.0016
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTrades60Ever2DerogPubRec
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.95%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0014
+                
+                    &plusmn; 0.0021
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MaxDelq2PublicRecLast12M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.15%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0012
+                
+                    &plusmn; 0.0016
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumSatisfactoryTrades
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.15%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0012
+                
+                    &plusmn; 0.0010
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumInqLast6M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.57%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0009
+                
+                    &plusmn; 0.0024
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumRevolvingTradesWBalance
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.19%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
                 0.0004
                 
-                    &plusmn; 0.0011
+                    &plusmn; 0.0004
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceMostRecentTradeOpen
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.19%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0004
+                
+                    &plusmn; 0.0009
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTrades90Ever2DerogPubRec
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.19%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0004
+                
+                    &plusmn; 0.0016
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13753,11 +13857,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 99.47%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 99.19%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0002
+                0.0004
                 
-                    &plusmn; 0.0025
+                    &plusmn; 0.0011
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13765,15 +13869,15 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 99.47%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 99.69%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0002
+                0.0001
                 
-                    &plusmn; 0.0005
+                    &plusmn; 0.0004
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentTradeOpen
+                NumTradesOpeninLast12M
             </td>
         </tr>
     
@@ -13791,9 +13895,9 @@ div#notebook {
     
         <tr style="background-color: hsl(0, 100.00%, 100.00%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0
+                -0.0000
                 
-                    &plusmn; 0.0000
+                    &plusmn; 0.0010
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -13801,81 +13905,9 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(0, 100.00%, 100.00%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0000
-                
-                    &plusmn; 0.0014
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTradesOpeninLast12M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 99.68%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0001
-                
-                    &plusmn; 0.0009
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInqLast6M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 99.47%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0002
-                
-                    &plusmn; 0.0020
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumRevolvingTradesWBalance
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 99.00%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0005
-                
-                    &plusmn; 0.0014
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInqLast6Mexcl7days
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 98.05%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0012
-                
-                    &plusmn; 0.0008
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTrades90Ever2DerogPubRec
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 97.85%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0014
-                
-                    &plusmn; 0.0054
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTrades60Ever2DerogPubRec
-            </td>
-        </tr>
-    
     
         
-            <tr style="background-color: hsl(0, 100.00%, 97.85%); border: none;">
+            <tr style="background-color: hsl(0, 100.00%, 100.00%); border: none;">
                 <td colspan="2" style="padding: 0 0.5em 0 0.5em; text-align: center; border: none; white-space: nowrap;">
                     <i>&hellip; 2 more &hellip;</i>
                 </td>
@@ -13922,7 +13954,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[11]:</div>
+<div class="prompt input_prompt">In&nbsp;[6]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">rf1</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">max_samples</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -13941,7 +13973,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[11]:</div>
+    <div class="prompt output_prompt">Out[6]:</div>
 
 
 
@@ -14001,9 +14033,9 @@ div#notebook {
     
         <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0201
+                0.0240
                 
-                    &plusmn; 0.0132
+                    &plusmn; 0.0073
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14011,11 +14043,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 82.33%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 84.52%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0168
+                0.0166
                 
-                    &plusmn; 0.0105
+                    &plusmn; 0.0089
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14023,11 +14055,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 83.83%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 87.25%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0148
+                0.0126
                 
-                    &plusmn; 0.0073
+                    &plusmn; 0.0106
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14035,11 +14067,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 86.56%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 87.59%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0114
+                0.0121
                 
-                    &plusmn; 0.0054
+                    &plusmn; 0.0080
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14047,47 +14079,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 88.02%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 88.21%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0097
+                0.0113
                 
-                    &plusmn; 0.0071
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceOldestTradeOpen
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 88.52%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0091
-                
-                    &plusmn; 0.0041
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumBank2NatlTradesWHighUtilization
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 89.91%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0076
-                
-                    &plusmn; 0.0065
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                PercentInstallTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 90.00%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0075
-                
-                    &plusmn; 0.0060
+                    &plusmn; 0.0054
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14095,23 +14091,35 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 90.00%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 88.56%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0075
+                0.0108
                 
-                    &plusmn; 0.0049
+                    &plusmn; 0.0057
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MaxDelq2PublicRecLast12M
+                MSinceOldestTradeOpen
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 90.36%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 88.77%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0071
+                0.0105
                 
-                    &plusmn; 0.0057
+                    &plusmn; 0.0054
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumBank2NatlTradesWHighUtilization
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 90.47%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0083
+                
+                    &plusmn; 0.0030
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14119,23 +14127,23 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 90.45%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 91.33%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0070
+                0.0073
                 
-                    &plusmn; 0.0031
+                    &plusmn; 0.0038
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentDelq
+                MaxDelq2PublicRecLast12M
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 91.10%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 91.49%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0063
+                0.0071
                 
-                    &plusmn; 0.0083
+                    &plusmn; 0.0075
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14143,71 +14151,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 91.20%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 91.57%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0062
-                
-                    &plusmn; 0.0045
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInqLast6M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 91.29%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0061
-                
-                    &plusmn; 0.0064
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInqLast6Mexcl7days
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 92.57%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0049
+                0.0070
                 
                     &plusmn; 0.0061
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTotalTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 93.52%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0040
-                
-                    &plusmn; 0.0023
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentTradeOpen
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 93.85%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0037
-                
-                    &plusmn; 0.0062
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTradesOpeninLast12M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 94.64%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0031
-                
-                    &plusmn; 0.0053
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14215,11 +14163,35 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 97.15%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 92.15%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0012
+                0.0063
                 
-                    &plusmn; 0.0065
+                    &plusmn; 0.0042
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                PercentInstallTrades
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 94.00%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0043
+                
+                    &plusmn; 0.0044
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumInqLast6Mexcl7days
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 94.86%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0034
+                
+                    &plusmn; 0.0043
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14227,21 +14199,81 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 97.30%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 95.06%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0011
+                0.0033
                 
-                    &plusmn; 0.0038
+                    &plusmn; 0.0053
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInstallTradesWBalance
+                NumTradesOpeninLast12M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 95.06%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0033
+                
+                    &plusmn; 0.0067
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTotalTrades
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 96.72%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0018
+                
+                    &plusmn; 0.0026
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumInqLast6M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.22%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0014
+                
+                    &plusmn; 0.0039
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceMostRecentDelq
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.48%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0012
+                
+                    &plusmn; 0.0029
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTrades60Ever2DerogPubRec
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.76%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0011
+                
+                    &plusmn; 0.0043
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTrades90Ever2DerogPubRec
             </td>
         </tr>
     
     
         
-            <tr style="background-color: hsl(120, 100.00%, 97.30%); border: none;">
+            <tr style="background-color: hsl(120, 100.00%, 97.76%); border: none;">
                 <td colspan="2" style="padding: 0 0.5em 0 0.5em; text-align: center; border: none; white-space: nowrap;">
                     <i>&hellip; 2 more &hellip;</i>
                 </td>
@@ -14288,7 +14320,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[12]:</div>
+<div class="prompt input_prompt">In&nbsp;[7]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">rf5</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">max_samples</span><span class="o">=</span><span class="mi">1500</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_features</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
@@ -14307,7 +14339,7 @@ div#notebook {
 
 <div class="output_area">
 
-    <div class="prompt output_prompt">Out[12]:</div>
+    <div class="prompt output_prompt">Out[7]:</div>
 
 
 
@@ -14367,9 +14399,9 @@ div#notebook {
     
         <tr style="background-color: hsl(120, 100.00%, 80.00%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0351
+                0.0409
                 
-                    &plusmn; 0.0124
+                    &plusmn; 0.0069
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14377,11 +14409,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 84.88%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 85.29%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0235
+                0.0264
                 
-                    &plusmn; 0.0058
+                    &plusmn; 0.0088
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14389,23 +14421,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 91.18%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 87.93%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0109
+                0.0199
                 
-                    &plusmn; 0.0068
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentInqexcl7days
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 91.29%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0107
-                
-                    &plusmn; 0.0080
+                    &plusmn; 0.0141
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14413,47 +14433,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 92.76%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 91.88%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0082
+                0.0113
                 
-                    &plusmn; 0.0041
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MaxDelq2PublicRecLast12M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 93.05%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0077
-                
-                    &plusmn; 0.0058
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentDelq
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 93.98%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0063
-                
-                    &plusmn; 0.0054
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                PercentTradesWBalance
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 94.11%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0061
-                
-                    &plusmn; 0.0047
+                    &plusmn; 0.0089
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14461,35 +14445,35 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 94.70%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 92.77%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0053
+                0.0096
                 
-                    &plusmn; 0.0014
+                    &plusmn; 0.0056
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NetFractionInstallBurden
+                MSinceMostRecentInqexcl7days
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 94.91%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 95.80%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0050
+                0.0044
                 
-                    &plusmn; 0.0025
+                    &plusmn; 0.0028
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumRevolvingTradesWBalance
+                MaxDelq2PublicRecLast12M
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 95.61%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 96.74%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0040
+                0.0031
                 
-                    &plusmn; 0.0038
+                    &plusmn; 0.0046
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14497,107 +14481,11 @@ div#notebook {
             </td>
         </tr>
     
-        <tr style="background-color: hsl(120, 100.00%, 95.69%); border: none;">
+        <tr style="background-color: hsl(120, 100.00%, 96.82%); border: none;">
             <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0039
+                0.0030
                 
-                    &plusmn; 0.0045
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                PercentInstallTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 95.99%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0035
-                
-                    &plusmn; 0.0043
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MaxDelqEver
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 96.86%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0025
-                
-                    &plusmn; 0.0040
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceOldestTradeOpen
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 97.48%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0018
-                
-                    &plusmn; 0.0037
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTradesOpeninLast12M
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 97.48%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0018
-                
-                    &plusmn; 0.0028
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTotalTrades
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.31%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0003
-                
-                    &plusmn; 0.0021
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumTrades90Ever2DerogPubRec
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(120, 100.00%, 99.48%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                0.0002
-                
-                    &plusmn; 0.0010
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                NumInqLast6Mexcl7days
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 99.48%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0002
-                
-                    &plusmn; 0.0024
-                
-            </td>
-            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
-                MSinceMostRecentTradeOpen
-            </td>
-        </tr>
-    
-        <tr style="background-color: hsl(0, 100.00%, 99.31%); border: none;">
-            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
-                -0.0003
-                
-                    &plusmn; 0.0050
+                    &plusmn; 0.0047
                 
             </td>
             <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
@@ -14605,9 +14493,153 @@ div#notebook {
             </td>
         </tr>
     
+        <tr style="background-color: hsl(120, 100.00%, 96.96%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0028
+                
+                    &plusmn; 0.0037
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumInqLast6Mexcl7days
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 97.11%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0026
+                
+                    &plusmn; 0.0042
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceMostRecentTradeOpen
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.17%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0013
+                
+                    &plusmn; 0.0047
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceMostRecentDelq
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.27%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0012
+                
+                    &plusmn; 0.0018
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumRevolvingTradesWBalance
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.46%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0011
+                
+                    &plusmn; 0.0048
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MSinceOldestTradeOpen
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 98.56%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0010
+                
+                    &plusmn; 0.0029
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                MaxDelqEver
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(120, 100.00%, 99.71%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                0.0001
+                
+                    &plusmn; 0.0027
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                PercentInstallTrades
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 99.38%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0003
+                
+                    &plusmn; 0.0018
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTotalTrades
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 98.66%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0009
+                
+                    &plusmn; 0.0023
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTrades60Ever2DerogPubRec
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 98.66%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0009
+                
+                    &plusmn; 0.0034
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NetFractionInstallBurden
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 98.56%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0010
+                
+                    &plusmn; 0.0039
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTradesOpeninLast12M
+            </td>
+        </tr>
+    
+        <tr style="background-color: hsl(0, 100.00%, 98.46%); border: none;">
+            <td style="padding: 0 1em 0 0.5em; text-align: right; border: none;">
+                -0.0011
+                
+                    &plusmn; 0.0022
+                
+            </td>
+            <td style="padding: 0 0.5em 0 0.5em; text-align: left; border: none;">
+                NumTrades90Ever2DerogPubRec
+            </td>
+        </tr>
+    
     
         
-            <tr style="background-color: hsl(0, 100.00%, 99.31%); border: none;">
+            <tr style="background-color: hsl(0, 100.00%, 98.46%); border: none;">
                 <td colspan="2" style="padding: 0 0.5em 0 0.5em; text-align: center; border: none; white-space: nowrap;">
                     <i>&hellip; 2 more &hellip;</i>
                 </td>
@@ -14647,23 +14679,856 @@ div#notebook {
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Z powyższych wyników widać że usunięcie dominującej zmiennej sprawiło że więcej zmiennych zaczęło mieć większe znaczenie, takie jak NetFractionRevolvingBurden, AverageMInFile czy MSinceMostRecentInqexcl7days. Wynika z tego że usunięcie tej zmiennej pozytywnie wpływa na wyjaśnialność, zwłaszcza że opierając się na wiedzy biznesowej, wartość zmiennej ExternalRiskEstimate musi zależeć od tych zmiennych. Zmienne te pojawiały się również w poprzednich pracach jako istotne, co potwierdza poprawność wyjaśnienia. Pomimo podobieństw występują też różnice między powyższymi modelami. W modelu XGBoost drugą z najważniejszych zmiennych jest NumBank2Natl(...), podczas gdy w modelach lasu losowego ta zmienna jest odpowiednio na 6-tej i 10-tej pozycji.</p>
+<p>Zestawienie wag powyższych trzech modeli:</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="prompt input_prompt">In&nbsp;[31]:</div>
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> notebook
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">explnRf1</span> <span class="o">=</span> <span class="n">eli5</span><span class="o">.</span><span class="n">explain_weights</span><span class="p">(</span><span class="n">imprtRf1</span><span class="p">)</span><span class="o">.</span><span class="n">feature_importances</span>
+<span class="n">explnRf5</span> <span class="o">=</span> <span class="n">eli5</span><span class="o">.</span><span class="n">explain_weights</span><span class="p">(</span><span class="n">imprtRf5</span><span class="p">)</span><span class="o">.</span><span class="n">feature_importances</span>
+<span class="n">explnXgb</span> <span class="o">=</span> <span class="n">eli5</span><span class="o">.</span><span class="n">explain_weights</span><span class="p">(</span><span class="n">xgbImportance</span><span class="p">)</span><span class="o">.</span><span class="n">feature_importances</span>
+
+<span class="n">barWidth</span> <span class="o">=</span> <span class="mf">0.25</span>
+<span class="n">allData</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">legend</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">varNames</span> <span class="o">=</span> <span class="n">orig</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">exp</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">explnRf1</span><span class="p">,</span> <span class="s2">&quot;rf1&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">explnRf5</span><span class="p">,</span> <span class="s2">&quot;rf5&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">explnXgb</span><span class="p">,</span> <span class="s2">&quot;xgb&quot;</span><span class="p">)]:</span>
+    <span class="n">legend</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">imps</span> <span class="o">=</span> <span class="n">exp</span><span class="o">.</span><span class="n">importances</span>
+    <span class="n">l</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">imps</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">feature</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">l</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="o">.</span><span class="n">weight</span>
+    <span class="n">allData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">([</span><span class="n">l</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">l</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">varNames</span><span class="p">))]))</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;rf1&#39;</span><span class="p">:</span> <span class="n">allData</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;rf5&#39;</span><span class="p">:</span> <span class="n">allData</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;xgb&#39;</span><span class="p">:</span> <span class="n">allData</span><span class="p">[</span><span class="mi">2</span><span class="p">]},</span> <span class="n">index</span> <span class="o">=</span> <span class="n">varNames</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">barh</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+
+
+<div id="20334639-76d1-44eb-9eb5-4159ffaa0635"></div>
+<div class="output_subarea output_javascript ">
+<script type="text/javascript">
+var element = $('#20334639-76d1-44eb-9eb5-4159ffaa0635');
+/* Put everything inside the global mpl namespace */
+window.mpl = {};
+
+
+mpl.get_websocket_type = function() {
+    if (typeof(WebSocket) !== 'undefined') {
+        return WebSocket;
+    } else if (typeof(MozWebSocket) !== 'undefined') {
+        return MozWebSocket;
+    } else {
+        alert('Your browser does not have WebSocket support. ' +
+              'Please try Chrome, Safari or Firefox ≥ 6. ' +
+              'Firefox 4 and 5 are also supported but you ' +
+              'have to enable WebSockets in about:config.');
+    };
+}
+
+mpl.figure = function(figure_id, websocket, ondownload, parent_element) {
+    this.id = figure_id;
+
+    this.ws = websocket;
+
+    this.supports_binary = (this.ws.binaryType != undefined);
+
+    if (!this.supports_binary) {
+        var warnings = document.getElementById("mpl-warnings");
+        if (warnings) {
+            warnings.style.display = 'block';
+            warnings.textContent = (
+                "This browser does not support binary websocket messages. " +
+                    "Performance may be slow.");
+        }
+    }
+
+    this.imageObj = new Image();
+
+    this.context = undefined;
+    this.message = undefined;
+    this.canvas = undefined;
+    this.rubberband_canvas = undefined;
+    this.rubberband_context = undefined;
+    this.format_dropdown = undefined;
+
+    this.image_mode = 'full';
+
+    this.root = $('<div/>');
+    this._root_extra_style(this.root)
+    this.root.attr('style', 'display: inline-block');
+
+    $(parent_element).append(this.root);
+
+    this._init_header(this);
+    this._init_canvas(this);
+    this._init_toolbar(this);
+
+    var fig = this;
+
+    this.waiting = false;
+
+    this.ws.onopen =  function () {
+            fig.send_message("supports_binary", {value: fig.supports_binary});
+            fig.send_message("send_image_mode", {});
+            if (mpl.ratio != 1) {
+                fig.send_message("set_dpi_ratio", {'dpi_ratio': mpl.ratio});
+            }
+            fig.send_message("refresh", {});
+        }
+
+    this.imageObj.onload = function() {
+            if (fig.image_mode == 'full') {
+                // Full images could contain transparency (where diff images
+                // almost always do), so we need to clear the canvas so that
+                // there is no ghosting.
+                fig.context.clearRect(0, 0, fig.canvas.width, fig.canvas.height);
+            }
+            fig.context.drawImage(fig.imageObj, 0, 0);
+        };
+
+    this.imageObj.onunload = function() {
+        fig.ws.close();
+    }
+
+    this.ws.onmessage = this._make_on_message_function(this);
+
+    this.ondownload = ondownload;
+}
+
+mpl.figure.prototype._init_header = function() {
+    var titlebar = $(
+        '<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ' +
+        'ui-helper-clearfix"/>');
+    var titletext = $(
+        '<div class="ui-dialog-title" style="width: 100%; ' +
+        'text-align: center; padding: 3px;"/>');
+    titlebar.append(titletext)
+    this.root.append(titlebar);
+    this.header = titletext[0];
+}
+
+
+
+mpl.figure.prototype._canvas_extra_style = function(canvas_div) {
+
+}
+
+
+mpl.figure.prototype._root_extra_style = function(canvas_div) {
+
+}
+
+mpl.figure.prototype._init_canvas = function() {
+    var fig = this;
+
+    var canvas_div = $('<div/>');
+
+    canvas_div.attr('style', 'position: relative; clear: both; outline: 0');
+
+    function canvas_keyboard_event(event) {
+        return fig.key_event(event, event['data']);
+    }
+
+    canvas_div.keydown('key_press', canvas_keyboard_event);
+    canvas_div.keyup('key_release', canvas_keyboard_event);
+    this.canvas_div = canvas_div
+    this._canvas_extra_style(canvas_div)
+    this.root.append(canvas_div);
+
+    var canvas = $('<canvas/>');
+    canvas.addClass('mpl-canvas');
+    canvas.attr('style', "left: 0; top: 0; z-index: 0; outline: 0")
+
+    this.canvas = canvas[0];
+    this.context = canvas[0].getContext("2d");
+
+    var backingStore = this.context.backingStorePixelRatio ||
+	this.context.webkitBackingStorePixelRatio ||
+	this.context.mozBackingStorePixelRatio ||
+	this.context.msBackingStorePixelRatio ||
+	this.context.oBackingStorePixelRatio ||
+	this.context.backingStorePixelRatio || 1;
+
+    mpl.ratio = (window.devicePixelRatio || 1) / backingStore;
+
+    var rubberband = $('<canvas/>');
+    rubberband.attr('style', "position: absolute; left: 0; top: 0; z-index: 1;")
+
+    var pass_mouse_events = true;
+
+    canvas_div.resizable({
+        start: function(event, ui) {
+            pass_mouse_events = false;
+        },
+        resize: function(event, ui) {
+            fig.request_resize(ui.size.width, ui.size.height);
+        },
+        stop: function(event, ui) {
+            pass_mouse_events = true;
+            fig.request_resize(ui.size.width, ui.size.height);
+        },
+    });
+
+    function mouse_event_fn(event) {
+        if (pass_mouse_events)
+            return fig.mouse_event(event, event['data']);
+    }
+
+    rubberband.mousedown('button_press', mouse_event_fn);
+    rubberband.mouseup('button_release', mouse_event_fn);
+    // Throttle sequential mouse events to 1 every 20ms.
+    rubberband.mousemove('motion_notify', mouse_event_fn);
+
+    rubberband.mouseenter('figure_enter', mouse_event_fn);
+    rubberband.mouseleave('figure_leave', mouse_event_fn);
+
+    canvas_div.on("wheel", function (event) {
+        event = event.originalEvent;
+        event['data'] = 'scroll'
+        if (event.deltaY < 0) {
+            event.step = 1;
+        } else {
+            event.step = -1;
+        }
+        mouse_event_fn(event);
+    });
+
+    canvas_div.append(canvas);
+    canvas_div.append(rubberband);
+
+    this.rubberband = rubberband;
+    this.rubberband_canvas = rubberband[0];
+    this.rubberband_context = rubberband[0].getContext("2d");
+    this.rubberband_context.strokeStyle = "#000000";
+
+    this._resize_canvas = function(width, height) {
+        // Keep the size of the canvas, canvas container, and rubber band
+        // canvas in synch.
+        canvas_div.css('width', width)
+        canvas_div.css('height', height)
+
+        canvas.attr('width', width * mpl.ratio);
+        canvas.attr('height', height * mpl.ratio);
+        canvas.attr('style', 'width: ' + width + 'px; height: ' + height + 'px;');
+
+        rubberband.attr('width', width);
+        rubberband.attr('height', height);
+    }
+
+    // Set the figure to an initial 600x600px, this will subsequently be updated
+    // upon first draw.
+    this._resize_canvas(600, 600);
+
+    // Disable right mouse context menu.
+    $(this.rubberband_canvas).bind("contextmenu",function(e){
+        return false;
+    });
+
+    function set_focus () {
+        canvas.focus();
+        canvas_div.focus();
+    }
+
+    window.setTimeout(set_focus, 100);
+}
+
+mpl.figure.prototype._init_toolbar = function() {
+    var fig = this;
+
+    var nav_element = $('<div/>');
+    nav_element.attr('style', 'width: 100%');
+    this.root.append(nav_element);
+
+    // Define a callback function for later on.
+    function toolbar_event(event) {
+        return fig.toolbar_button_onclick(event['data']);
+    }
+    function toolbar_mouse_event(event) {
+        return fig.toolbar_button_onmouseover(event['data']);
+    }
+
+    for(var toolbar_ind in mpl.toolbar_items) {
+        var name = mpl.toolbar_items[toolbar_ind][0];
+        var tooltip = mpl.toolbar_items[toolbar_ind][1];
+        var image = mpl.toolbar_items[toolbar_ind][2];
+        var method_name = mpl.toolbar_items[toolbar_ind][3];
+
+        if (!name) {
+            // put a spacer in here.
+            continue;
+        }
+        var button = $('<button/>');
+        button.addClass('ui-button ui-widget ui-state-default ui-corner-all ' +
+                        'ui-button-icon-only');
+        button.attr('role', 'button');
+        button.attr('aria-disabled', 'false');
+        button.click(method_name, toolbar_event);
+        button.mouseover(tooltip, toolbar_mouse_event);
+
+        var icon_img = $('<span/>');
+        icon_img.addClass('ui-button-icon-primary ui-icon');
+        icon_img.addClass(image);
+        icon_img.addClass('ui-corner-all');
+
+        var tooltip_span = $('<span/>');
+        tooltip_span.addClass('ui-button-text');
+        tooltip_span.html(tooltip);
+
+        button.append(icon_img);
+        button.append(tooltip_span);
+
+        nav_element.append(button);
+    }
+
+    var fmt_picker_span = $('<span/>');
+
+    var fmt_picker = $('<select/>');
+    fmt_picker.addClass('mpl-toolbar-option ui-widget ui-widget-content');
+    fmt_picker_span.append(fmt_picker);
+    nav_element.append(fmt_picker_span);
+    this.format_dropdown = fmt_picker[0];
+
+    for (var ind in mpl.extensions) {
+        var fmt = mpl.extensions[ind];
+        var option = $(
+            '<option/>', {selected: fmt === mpl.default_extension}).html(fmt);
+        fmt_picker.append(option);
+    }
+
+    // Add hover states to the ui-buttons
+    $( ".ui-button" ).hover(
+        function() { $(this).addClass("ui-state-hover");},
+        function() { $(this).removeClass("ui-state-hover");}
+    );
+
+    var status_bar = $('<span class="mpl-message"/>');
+    nav_element.append(status_bar);
+    this.message = status_bar[0];
+}
+
+mpl.figure.prototype.request_resize = function(x_pixels, y_pixels) {
+    // Request matplotlib to resize the figure. Matplotlib will then trigger a resize in the client,
+    // which will in turn request a refresh of the image.
+    this.send_message('resize', {'width': x_pixels, 'height': y_pixels});
+}
+
+mpl.figure.prototype.send_message = function(type, properties) {
+    properties['type'] = type;
+    properties['figure_id'] = this.id;
+    this.ws.send(JSON.stringify(properties));
+}
+
+mpl.figure.prototype.send_draw_message = function() {
+    if (!this.waiting) {
+        this.waiting = true;
+        this.ws.send(JSON.stringify({type: "draw", figure_id: this.id}));
+    }
+}
+
+
+mpl.figure.prototype.handle_save = function(fig, msg) {
+    var format_dropdown = fig.format_dropdown;
+    var format = format_dropdown.options[format_dropdown.selectedIndex].value;
+    fig.ondownload(fig, format);
+}
+
+
+mpl.figure.prototype.handle_resize = function(fig, msg) {
+    var size = msg['size'];
+    if (size[0] != fig.canvas.width || size[1] != fig.canvas.height) {
+        fig._resize_canvas(size[0], size[1]);
+        fig.send_message("refresh", {});
+    };
+}
+
+mpl.figure.prototype.handle_rubberband = function(fig, msg) {
+    var x0 = msg['x0'] / mpl.ratio;
+    var y0 = (fig.canvas.height - msg['y0']) / mpl.ratio;
+    var x1 = msg['x1'] / mpl.ratio;
+    var y1 = (fig.canvas.height - msg['y1']) / mpl.ratio;
+    x0 = Math.floor(x0) + 0.5;
+    y0 = Math.floor(y0) + 0.5;
+    x1 = Math.floor(x1) + 0.5;
+    y1 = Math.floor(y1) + 0.5;
+    var min_x = Math.min(x0, x1);
+    var min_y = Math.min(y0, y1);
+    var width = Math.abs(x1 - x0);
+    var height = Math.abs(y1 - y0);
+
+    fig.rubberband_context.clearRect(
+        0, 0, fig.canvas.width / mpl.ratio, fig.canvas.height / mpl.ratio);
+
+    fig.rubberband_context.strokeRect(min_x, min_y, width, height);
+}
+
+mpl.figure.prototype.handle_figure_label = function(fig, msg) {
+    // Updates the figure title.
+    fig.header.textContent = msg['label'];
+}
+
+mpl.figure.prototype.handle_cursor = function(fig, msg) {
+    var cursor = msg['cursor'];
+    switch(cursor)
+    {
+    case 0:
+        cursor = 'pointer';
+        break;
+    case 1:
+        cursor = 'default';
+        break;
+    case 2:
+        cursor = 'crosshair';
+        break;
+    case 3:
+        cursor = 'move';
+        break;
+    }
+    fig.rubberband_canvas.style.cursor = cursor;
+}
+
+mpl.figure.prototype.handle_message = function(fig, msg) {
+    fig.message.textContent = msg['message'];
+}
+
+mpl.figure.prototype.handle_draw = function(fig, msg) {
+    // Request the server to send over a new figure.
+    fig.send_draw_message();
+}
+
+mpl.figure.prototype.handle_image_mode = function(fig, msg) {
+    fig.image_mode = msg['mode'];
+}
+
+mpl.figure.prototype.updated_canvas_event = function() {
+    // Called whenever the canvas gets updated.
+    this.send_message("ack", {});
+}
+
+// A function to construct a web socket function for onmessage handling.
+// Called in the figure constructor.
+mpl.figure.prototype._make_on_message_function = function(fig) {
+    return function socket_on_message(evt) {
+        if (evt.data instanceof Blob) {
+            /* FIXME: We get "Resource interpreted as Image but
+             * transferred with MIME type text/plain:" errors on
+             * Chrome.  But how to set the MIME type?  It doesn't seem
+             * to be part of the websocket stream */
+            evt.data.type = "image/png";
+
+            /* Free the memory for the previous frames */
+            if (fig.imageObj.src) {
+                (window.URL || window.webkitURL).revokeObjectURL(
+                    fig.imageObj.src);
+            }
+
+            fig.imageObj.src = (window.URL || window.webkitURL).createObjectURL(
+                evt.data);
+            fig.updated_canvas_event();
+            fig.waiting = false;
+            return;
+        }
+        else if (typeof evt.data === 'string' && evt.data.slice(0, 21) == "data:image/png;base64") {
+            fig.imageObj.src = evt.data;
+            fig.updated_canvas_event();
+            fig.waiting = false;
+            return;
+        }
+
+        var msg = JSON.parse(evt.data);
+        var msg_type = msg['type'];
+
+        // Call the  "handle_{type}" callback, which takes
+        // the figure and JSON message as its only arguments.
+        try {
+            var callback = fig["handle_" + msg_type];
+        } catch (e) {
+            console.log("No handler for the '" + msg_type + "' message type: ", msg);
+            return;
+        }
+
+        if (callback) {
+            try {
+                // console.log("Handling '" + msg_type + "' message: ", msg);
+                callback(fig, msg);
+            } catch (e) {
+                console.log("Exception inside the 'handler_" + msg_type + "' callback:", e, e.stack, msg);
+            }
+        }
+    };
+}
+
+// from http://stackoverflow.com/questions/1114465/getting-mouse-location-in-canvas
+mpl.findpos = function(e) {
+    //this section is from http://www.quirksmode.org/js/events_properties.html
+    var targ;
+    if (!e)
+        e = window.event;
+    if (e.target)
+        targ = e.target;
+    else if (e.srcElement)
+        targ = e.srcElement;
+    if (targ.nodeType == 3) // defeat Safari bug
+        targ = targ.parentNode;
+
+    // jQuery normalizes the pageX and pageY
+    // pageX,Y are the mouse positions relative to the document
+    // offset() returns the position of the element relative to the document
+    var x = e.pageX - $(targ).offset().left;
+    var y = e.pageY - $(targ).offset().top;
+
+    return {"x": x, "y": y};
+};
+
+/*
+ * return a copy of an object with only non-object keys
+ * we need this to avoid circular references
+ * http://stackoverflow.com/a/24161582/3208463
+ */
+function simpleKeys (original) {
+  return Object.keys(original).reduce(function (obj, key) {
+    if (typeof original[key] !== 'object')
+        obj[key] = original[key]
+    return obj;
+  }, {});
+}
+
+mpl.figure.prototype.mouse_event = function(event, name) {
+    var canvas_pos = mpl.findpos(event)
+
+    if (name === 'button_press')
+    {
+        this.canvas.focus();
+        this.canvas_div.focus();
+    }
+
+    var x = canvas_pos.x * mpl.ratio;
+    var y = canvas_pos.y * mpl.ratio;
+
+    this.send_message(name, {x: x, y: y, button: event.button,
+                             step: event.step,
+                             guiEvent: simpleKeys(event)});
+
+    /* This prevents the web browser from automatically changing to
+     * the text insertion cursor when the button is pressed.  We want
+     * to control all of the cursor setting manually through the
+     * 'cursor' event from matplotlib */
+    event.preventDefault();
+    return false;
+}
+
+mpl.figure.prototype._key_event_extra = function(event, name) {
+    // Handle any extra behaviour associated with a key event
+}
+
+mpl.figure.prototype.key_event = function(event, name) {
+
+    // Prevent repeat events
+    if (name == 'key_press')
+    {
+        if (event.which === this._key)
+            return;
+        else
+            this._key = event.which;
+    }
+    if (name == 'key_release')
+        this._key = null;
+
+    var value = '';
+    if (event.ctrlKey && event.which != 17)
+        value += "ctrl+";
+    if (event.altKey && event.which != 18)
+        value += "alt+";
+    if (event.shiftKey && event.which != 16)
+        value += "shift+";
+
+    value += 'k';
+    value += event.which.toString();
+
+    this._key_event_extra(event, name);
+
+    this.send_message(name, {key: value,
+                             guiEvent: simpleKeys(event)});
+    return false;
+}
+
+mpl.figure.prototype.toolbar_button_onclick = function(name) {
+    if (name == 'download') {
+        this.handle_save(this, null);
+    } else {
+        this.send_message("toolbar_button", {name: name});
+    }
+};
+
+mpl.figure.prototype.toolbar_button_onmouseover = function(tooltip) {
+    this.message.textContent = tooltip;
+};
+mpl.toolbar_items = [["Home", "Reset original view", "fa fa-home icon-home", "home"], ["Back", "Back to previous view", "fa fa-arrow-left icon-arrow-left", "back"], ["Forward", "Forward to next view", "fa fa-arrow-right icon-arrow-right", "forward"], ["", "", "", ""], ["Pan", "Pan axes with left mouse, zoom with right", "fa fa-arrows icon-move", "pan"], ["Zoom", "Zoom to rectangle", "fa fa-square-o icon-check-empty", "zoom"], ["", "", "", ""], ["Download", "Download plot", "fa fa-floppy-o icon-save", "download"]];
+
+mpl.extensions = ["eps", "jpeg", "pdf", "png", "ps", "raw", "svg", "tif"];
+
+mpl.default_extension = "png";var comm_websocket_adapter = function(comm) {
+    // Create a "websocket"-like object which calls the given IPython comm
+    // object with the appropriate methods. Currently this is a non binary
+    // socket, so there is still some room for performance tuning.
+    var ws = {};
+
+    ws.close = function() {
+        comm.close()
+    };
+    ws.send = function(m) {
+        //console.log('sending', m);
+        comm.send(m);
+    };
+    // Register the callback with on_msg.
+    comm.on_msg(function(msg) {
+        //console.log('receiving', msg['content']['data'], msg);
+        // Pass the mpl event to the overridden (by mpl) onmessage function.
+        ws.onmessage(msg['content']['data'])
+    });
+    return ws;
+}
+
+mpl.mpl_figure_comm = function(comm, msg) {
+    // This is the function which gets called when the mpl process
+    // starts-up an IPython Comm through the "matplotlib" channel.
+
+    var id = msg.content.data.id;
+    // Get hold of the div created by the display call when the Comm
+    // socket was opened in Python.
+    var element = $("#" + id);
+    var ws_proxy = comm_websocket_adapter(comm)
+
+    function ondownload(figure, format) {
+        window.open(figure.imageObj.src);
+    }
+
+    var fig = new mpl.figure(id, ws_proxy,
+                           ondownload,
+                           element.get(0));
+
+    // Call onopen now - mpl needs it, as it is assuming we've passed it a real
+    // web socket which is closed, not our websocket->open comm proxy.
+    ws_proxy.onopen();
+
+    fig.parent_element = element.get(0);
+    fig.cell_info = mpl.find_output_cell("<div id='" + id + "'></div>");
+    if (!fig.cell_info) {
+        console.error("Failed to find cell for figure", id, fig);
+        return;
+    }
+
+    var output_index = fig.cell_info[2]
+    var cell = fig.cell_info[0];
+
+};
+
+mpl.figure.prototype.handle_close = function(fig, msg) {
+    var width = fig.canvas.width/mpl.ratio
+    fig.root.unbind('remove')
+
+    // Update the output cell to use the data from the current canvas.
+    fig.push_to_output();
+    var dataURL = fig.canvas.toDataURL();
+    // Re-enable the keyboard manager in IPython - without this line, in FF,
+    // the notebook keyboard shortcuts fail.
+    IPython.keyboard_manager.enable()
+    $(fig.parent_element).html('<img src="' + dataURL + '" width="' + width + '">');
+    fig.close_ws(fig, msg);
+}
+
+mpl.figure.prototype.close_ws = function(fig, msg){
+    fig.send_message('closing', msg);
+    // fig.ws.close()
+}
+
+mpl.figure.prototype.push_to_output = function(remove_interactive) {
+    // Turn the data on the canvas into data in the output cell.
+    var width = this.canvas.width/mpl.ratio
+    var dataURL = this.canvas.toDataURL();
+    this.cell_info[1]['text/html'] = '<img src="' + dataURL + '" width="' + width + '">';
+}
+
+mpl.figure.prototype.updated_canvas_event = function() {
+    // Tell IPython that the notebook contents must change.
+    IPython.notebook.set_dirty(true);
+    this.send_message("ack", {});
+    var fig = this;
+    // Wait a second, then push the new image to the DOM so
+    // that it is saved nicely (might be nice to debounce this).
+    setTimeout(function () { fig.push_to_output() }, 1000);
+}
+
+mpl.figure.prototype._init_toolbar = function() {
+    var fig = this;
+
+    var nav_element = $('<div/>');
+    nav_element.attr('style', 'width: 100%');
+    this.root.append(nav_element);
+
+    // Define a callback function for later on.
+    function toolbar_event(event) {
+        return fig.toolbar_button_onclick(event['data']);
+    }
+    function toolbar_mouse_event(event) {
+        return fig.toolbar_button_onmouseover(event['data']);
+    }
+
+    for(var toolbar_ind in mpl.toolbar_items){
+        var name = mpl.toolbar_items[toolbar_ind][0];
+        var tooltip = mpl.toolbar_items[toolbar_ind][1];
+        var image = mpl.toolbar_items[toolbar_ind][2];
+        var method_name = mpl.toolbar_items[toolbar_ind][3];
+
+        if (!name) { continue; };
+
+        var button = $('<button class="btn btn-default" href="#" title="' + name + '"><i class="fa ' + image + ' fa-lg"></i></button>');
+        button.click(method_name, toolbar_event);
+        button.mouseover(tooltip, toolbar_mouse_event);
+        nav_element.append(button);
+    }
+
+    // Add the status bar.
+    var status_bar = $('<span class="mpl-message" style="text-align:right; float: right;"/>');
+    nav_element.append(status_bar);
+    this.message = status_bar[0];
+
+    // Add the close button to the window.
+    var buttongrp = $('<div class="btn-group inline pull-right"></div>');
+    var button = $('<button class="btn btn-mini btn-primary" href="#" title="Stop Interaction"><i class="fa fa-power-off icon-remove icon-large"></i></button>');
+    button.click(function (evt) { fig.handle_close(fig, {}); } );
+    button.mouseover('Stop Interaction', toolbar_mouse_event);
+    buttongrp.append(button);
+    var titlebar = this.root.find($('.ui-dialog-titlebar'));
+    titlebar.prepend(buttongrp);
+}
+
+mpl.figure.prototype._root_extra_style = function(el){
+    var fig = this
+    el.on("remove", function(){
+	fig.close_ws(fig, {});
+    });
+}
+
+mpl.figure.prototype._canvas_extra_style = function(el){
+    // this is important to make the div 'focusable
+    el.attr('tabindex', 0)
+    // reach out to IPython and tell the keyboard manager to turn it's self
+    // off when our div gets focus
+
+    // location in version 3
+    if (IPython.notebook.keyboard_manager) {
+        IPython.notebook.keyboard_manager.register_events(el);
+    }
+    else {
+        // location in version 2
+        IPython.keyboard_manager.register_events(el);
+    }
+
+}
+
+mpl.figure.prototype._key_event_extra = function(event, name) {
+    var manager = IPython.notebook.keyboard_manager;
+    if (!manager)
+        manager = IPython.keyboard_manager;
+
+    // Check for shift+enter
+    if (event.shiftKey && event.which == 13) {
+        this.canvas_div.blur();
+        // select the cell after this one
+        var index = IPython.notebook.find_cell_index(this.cell_info[0]);
+        IPython.notebook.select(index + 1);
+    }
+}
+
+mpl.figure.prototype.handle_save = function(fig, msg) {
+    fig.ondownload(fig, null);
+}
+
+
+mpl.find_output_cell = function(html_output) {
+    // Return the cell and output element which can be found *uniquely* in the notebook.
+    // Note - this is a bit hacky, but it is done because the "notebook_saving.Notebook"
+    // IPython event is triggered only after the cells have been serialised, which for
+    // our purposes (turning an active figure into a static one), is too late.
+    var cells = IPython.notebook.get_cells();
+    var ncells = cells.length;
+    for (var i=0; i<ncells; i++) {
+        var cell = cells[i];
+        if (cell.cell_type === 'code'){
+            for (var j=0; j<cell.output_area.outputs.length; j++) {
+                var data = cell.output_area.outputs[j];
+                if (data.data) {
+                    // IPython >= 3 moved mimebundle to data attribute of output
+                    data = data.data;
+                }
+                if (data['text/html'] == html_output) {
+                    return [cell, data, j];
+                }
+            }
+        }
+    }
+}
+
+// Register the function which deals with the matplotlib target/channel.
+// The kernel may be null if the page has been refreshed.
+if (IPython.notebook.kernel != null) {
+    IPython.notebook.kernel.comm_manager.register_target('matplotlib', mpl.mpl_figure_comm);
+}
+
+</script>
+</div>
+
+</div>
+
+<div class="output_area">
+
+    <div class="prompt"></div>
+
+
+
+<div class="output_html rendered_html output_subarea ">
+<img src="data:image/png;base64,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" width="892.2166666666666">
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Z powyższych wyników widać że usunięcie dominującej zmiennej sprawiło że więcej zmiennych zaczęło mieć większe znaczenie, takie jak NetFractionRevolvingBurden, AverageMInFile czy MSinceMostRecentInqexcl7days. Wynika z tego że usunięcie tej zmiennej pozytywnie wpływa na wyjaśnialność, zwłaszcza że opierając się na wiedzy biznesowej, wartość zmiennej ExternalRiskEstimate musi zależeć od tych zmiennych. Zmienne te pojawiały się również w poprzednich pracach jako istotne, co potwierdza poprawność wyjaśnienia. Pomimo podobieństw występują też różnice między powyższymi modelami. W modelu XGBoost drugą z najważniejszych zmiennych jest NumBank2Natl(...), podczas gdy w modelach lasu losowego ta zmienna jest odpowiednio na 6-tej i 10-tej pozycji.</p>
+
+</div>
+</div>
 </div>
     </div>
   </div>
