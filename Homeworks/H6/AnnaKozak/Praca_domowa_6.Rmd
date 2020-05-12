@@ -1,0 +1,193 @@
+---
+title: "Wyjaśnialne Uczenie Maszynowe - Praca domowa 6"
+author: "Anna Kozak"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(ingredients)
+```
+
+## Zbiór danych
+
+Poniższa analiza została przygotowana na zbiorze danych opisujących sprzedaż domów (House Sales Prices). Poniżej lista zmiennych:
+
+- `price_log` logarytm ceny nieruchomości
+- `bedrooms` liczba sypialni
+- `bathrooms` liczba łazienek
+- `m2_living` powierzchnia użytkowa
+- `m2_lot` powierzchnia gruntu
+- `floors` liczba pięter
+- `waterfront` czy nad wodą
+- `view` jakość widoku
+- `condition` stan 
+- `grade` jakość konstrukcji i wykończenia
+- `m2_above` powierzchnia pięter
+- `m2_basement` powierzchnia piwnicy
+- `zipcode` kod pocztowy
+- `lat` szerokość geograficzna
+- `long` długość geograficzna
+- `m2_living15` średnia powierzchnia użytkowa dla 15-Nearest Neighbors
+- `m2_lot15` średnia powierzchnia gruntu dla 15-Nearest Neighbors
+- `dist_stop` odległość od transportu publicznego
+- `ncult` liczba obiektów kultury w promieniu jednego kilometra
+- `age` wiek nieruchomości
+- `since_renovated` liczba lat od ostatniej renowacjii
+
+
+Do modelowania logarytmu ceny sprzedaży domu (`price_log`) wybrano zmienne takie jak `bedrooms`, `bathrooms`, `m2_living`, `m2_lot`, `floors`, `waterfront`, `view`, `condition`, `grade`, `m2_above`, `m2_basement`, `zipcode`, `lat`, `long`, `m2_living15`, `m2_lot15` oraz cztery dodatkowo utworzone zmienne `age` opisującą wiek nieruchomości i `since_renovated` czyli liczba lat od remontu nieruchomości, `dist_stop` mówiąc o odległości od transportu publicznego oraz `ncult` czyli liczba obiektów kultury w promieniu jednego kilometra.
+
+
+## Wyjaśnienia
+
+Zbudowano model lasu losowego (`ranger`), zmienna objaśniana to logarytm cena nieruchomości. Poniżej przedstawiono wykres Partial Dependence Plot (PDP).
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=10, fig.width=10}
+load("Explanations/pdp_ald/pdp_rf.rda")
+load("Explanations/pdp_ald/ald_rf.rda")
+load("Explanations/pdp_ald/pdp_rf_cat.rda")
+variables_model <- c("bedrooms", "bathrooms", "m2_living", "m2_lot", "floors", "view",
+                     "condition", "grade", "m2_above", "m2_basement", "zipcode",
+                     "lat", "long", "m2_living15", "m2_lot15", "dist_stop", 
+                     "ncult", "age", "since_renovated")
+plot(pdp_rf, variables = variables_model)
+```
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=7, fig.width=10}
+p1 <- plot(pdp_rf_cat, variables = "waterfront")
+p2 <- plot(pdp_rf_cat, variables = "zipcode") + 
+  coord_flip() + theme(axis.text.y = element_text(size = 6))
+gridExtra::grid.arrange(p1, p2,widths = c(1, 2))
+```
+
+Na podstawie profili Partial Dependence możemy określić wpływ zmiennej na predykcję. Poniżej interpretacja dla zmiennych:
+
+- dla zmiennej `bedrooms` (liczba sypialni) bez względu na liczbę sypliani predykcja modelu pozostaje bez zmian
+
+- dla zmiennej `bathrooms` (liczba łazienek) jeśli przyjmuje wartości mniejsze niż 4, to predyckja modelu nieznacznie spada, dla wartości większych od 4 predykcja pozostaje bez zmian
+
+- dla zmiennej `floors` (liczba pięter) podobnie jak zmienna `bedrooms`, zmiana wartości nie wpływa na zmianę predyckji
+
+- dla zmiennej `view` (jakość widoku) predykcja wzrasta wraz ze zmianą wartości na większą 
+
+- dla zmiennej `condition` (stan) podobnie jak `view`, jednak ten wzrost nie jest tak duży
+
+- dla zmiennej `grade` (jakość konstrukcji i wykończenia) wraz ze zwiększeniem wartości, predykcja również wzrasta
+
+- dla zmiennej `lat` (szerokość geograficzna) można zauważyć, że dla pewnych wartości predykcja jest zdecydowanie większa niż dla pozostałych (dla nieruchomości położonych bliżej północy)
+
+- dla zmiennej `long` (długość geograficzna) predykcja nieznacznie większa dla nieruchomości położonych na zachód
+
+- dla zmiennej `dist_stop` (odległość od transportu publicznego) bez względu na wartość predykcja się nie zmienia
+
+- dla zmiennej `ncult` (liczba obiektów kultury w promieniu jednego kilometra) jedynie bardzo małe wartości wpływają na obniżenie wartości predykcji, dla innych wartości predykcja bez zmian
+
+- dla zmiennej `age` (wiek nieruchomości) lekki wzrost predykcji dla większych wartości
+
+- dla zmiennej `since_renovated` (liczba lat od ostatniej renowacjii) zmniejszenie predykcji dla nieruchomości, które były remontowane dawno temu
+
+- dla zmiennej `m2_living` (powierzchnia użytkowa) zdecydowany wzrost predykcji logarytmu ceny mieszkania wraz ze wzrostem powierzchni użytkowej
+
+- dla zmiennej `m2_lot` (powierzchnia gruntu) mniejsza predykacj dla bardzo małych wartości, dla pozostałych bez większych różnic
+
+- dla zmiennej `m2_above` (powierzchnia pięter) podobnie jak dla zmiennej `m2_lot`
+
+- dla zmiennej `m2_basement` (powierzchnia piwnicy) predykcja nieco mniejsza dla mniejszych wartości, dla pozostałych na podobnym poziomie
+
+- dla zmiennej `m2_living15` (średnia powierzchnia użytkowa dla 15-Nearest Neighbors) podobnie jak dla zmiennej `m2_above`, czyli mniejsza predykcja dla wartości mniejszych oraz wzrost logarytmu ceny nieruchomości wraz ze wzrostem wartości
+
+- dla zmiennej `m2_lot15` (średnia powierzchnia gruntu dla 15-Nearest Neighbors) dla najniższych wartości predykcja jest mniejsza, dla pozostałych przyjmuję stałą wartość
+
+- dla zmiennej `waterfront` (czy nad wodą) nie ma widoczej różnicy między dwoma wartościami, predykacja bardzo zbliżona
+
+- dla zmiennej `zipcode` (kod pocztowy) predykcja w zależności od wartości kodu pocztowego różni się nieznacznie, nie ma wielkiego wpływu na wartość predykcji
+
+
+Poniżej zestawienie wykresów Partial Dependence Profiles and Accumulated Local Dependence dla modelu lasu losowego. Możemy zauważyć, że wykresy te są do siebie bardzo podobne. Zauważalne jest jedynie przesunięcie wykresów ALE względem osi y. Może to świadczyć o addtywności modelu.
+
+
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=10, fig.width=10}
+
+pdp_rf$`_label_` <- "PDP random forest"
+ald_rf$`_label_` <- "ALE random forest"
+plot(pdp_rf, ald_rf, variables = variables_model) + facet_wrap(~`_vname_`, scales = "free", ncol = 4) + ggtitle("Comparision of PDP and ALE for random forest model") + labs(subtitle = "")
+
+```
+
+
+W celu porównania modeli, poniżej zestawienie wykresów PDP dla modeli takich jak:
+
+- drzewo decyzyjne
+
+- gbm
+
+- las losowy
+
+- xgboost.
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=10, fig.width=10}
+
+load("Explanations/pdp_ald/pdp_decisiontree.rda")
+load("Explanations/pdp_ald/pdp_gbm.rda")
+load("Explanations/pdp_ald/pdp_xgb.rda")
+pdp_rf$`_label_` <- "random forest"
+variables_model <- c("bedrooms", "bathrooms", "m2_living", "m2_lot", "floors", "view",
+                     "condition", "grade", "m2_above", "m2_basement", "zipcode",
+                     "lat", "long", "m2_living15", "m2_lot15", "dist_stop",
+                     "ncult", "age", "since_renovated") 
+plot(pdp_decisiontree, pdp_gbm, pdp_rf, pdp_xgb, variables = variables_model)
+```
+
+- dla zmiennej `bedrooms` wszystkie modele oprócz xgboost zachowują tak samo, płaskie profile oraz przyjmujące taką samą wartość predykji. Dla modelu xgboost linia również jest płaska, jednak jej wartość jest nie co wyższa od pozostałych.
+
+- dla zmiennej `bathrooms` model drzewa decyzyjnego oraz lasu losowego mają podobne zachowanie, profile są płaskie, dla modelu gbm oraz xgboost lekki wzrost predykcji dla większych wartości zmiennej.
+
+- dla zmiennej `floors` wykresy PDP są płaskie niezależnie od wartości zmiennej, jedynie dla modelu xgboost wartość predykcji jest większa niż dla pozostałych.
+
+- dla zmiennej `view` największą zmienność krzywych PDP możemy zauważyć dla modelu xgboost oraz gbm. Widzimy znaczącą różnicę dla większych wartości tej zmiennej.
+
+- dla zmiennej `condition` model lasu losowego i drzewa decyzyjnego przyjmują płaskie krzywe PDP, natomiast dla modelu gbm i xgboost te krzywe są równoległe oraz przyjmują wartoście mniejsze dla mniejszych wartości zmiennej oraz odpowiednio większe predyckje dla większych wartości zmiennej.
+
+- dla zmiennej `grade` wszystkie modele wskazują, że dla większych wartości zmiennej predykcja również wzrasta.
+
+- dla zmiennej `lat` wszystkie krzywe PDP mają zauważany skok dla wiekszych wartości (mieszkania na północy), największy skok wartości predykcji obsewujemy dla modelu xgboost.
+
+- dla zmiennej `long` największe zmiany w krzywych PDP obserwujemy dla modelu xgboost, dla mieszkań na zachodzie.
+
+- dla zmiennej `dist_stop` model xgboost orax gbm wskazują większą predykcję dla małych wartości tej zmiennej, dla większych wartości predykcja maleje, pozostałe modele przyjmują płaskie krzywe PDP.
+
+- dla zmiennej `ncult` krzywe PDP układają się równolegle dla wszystkich modeli, przyjmują płaski kształt.
+
+- dla zmiennej `age` podobnie jak dla zmiennej `ncult`, profile PDP są płaskie, jedynie lekki wzrost wartości predykcji dla większych wartości, czyli dla starszych nieruchomości.
+
+- dla zmiennej `since_renovated` wartości predykcji większa dla mniejszych wartości zmiennej, czyli dla nieruchomości, które w niedługim okresie czasu miały remot cena wzrasta względem tych, które ten remont miały dawno lub nie miały wcale.
+
+- dla zmiennej `m2_living` możemy zauważyć, że dla wykresy PDP dla każdego modelu pokazują wzrost wartości predykcji wraz ze wzrostem wartości zmiennej. Zmienna określa powierzchnię użytkową nieruchomosći, zatem im ta powierzchnia jest większa tym predykcj ceny również wzrasta.
+
+- dla zmiennej `m2_lot` dla modeli xgboost oraz gbm widzimy gwałtowy wzrost wartości predykcji względem wartości zmiennej, dla modelu drzewa decyzyjnego oraz lasu losowego nie widać większych różnic.
+
+- dla zmiennej `m2_above` oraz `m2_living15` wykresy PDP wyglądają podobnie, czyli jest zauważalny wzrost predykcji logarytmu ceny wraz ze rosnącą wartością zmiennej. Dla modelu drzewa decyzyjnego w obu przypadkach wykres jest płaski.
+
+- dla zmiennej `m2_basement` wartość predykcji dla mniejszych wartości jest większa, dla większych predykcja spada, jest to powierzchnia piwnicy, w rejonach Seattle tereny są często podtapiane dlatego możliwe, że duże powierzchnie piwnic wpływają negatywnie na cenę nieruchomości.
+
+- dla zmiennej `m2_lot15` wykresy PDP są płaskie, jedynie dla modelu xgboost oraz gbm lekki wzrost predykcji dla małych wartości zmiennej.
+
+
+
+
+
+### Podsumowanie 
+
+Profile PDP pomagają w łatwy sposób podsumować wpływ danej zmiennej na predykcję modelu. Są łatwe i intuicyjne. Możemy porównywać je dla różnych modeli, co pozwala na określenie, na co kolejne modele zwracają uwagę. Dodatowo zastowanie profili ALE pozwana na określenie czy w modelu występują interakcje oraz czy dane są istotnie skorelowane.
+
+
+Kody do wyliczenia [PDP oraz ALE](https://github.com/kozaka93/InterpretableHouseSalePrices/tree/master/Explanations/pdp_ald) oraz [budowy przedstawionych modeli](https://github.com/kozaka93/InterpretableHouseSalePrices/tree/master/Models/PredictiveModels) zostały umieszczone na repozytorium.
