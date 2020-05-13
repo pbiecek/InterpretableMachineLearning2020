@@ -3,41 +3,104 @@
 <head>
   <meta charset="utf-8">
   <title>Homework 5 - Miłosz Michta</title>
+    <style>
+      li {
+          list-style-type: none;
+        }
+      img {
+          min-width: 800px;
+          width:50%; 
+          height:auto; 
+        }
+      p {
+          word-wrap: break-word;
+          width: 60%; 
+        }
+    </style>
 </head>
 <body>
 <div align='center'>
-	<h4>W pierwszym zadaniu sprawdzimy jak wygląda permutacyjna ważność cech dla trzech modeli LightGBM, regresji logistycznej oraz modelu bayesowskiego.</h4>
-    <figure>
-        <img src="img/1.png" />
-         <figcaption>8 najistotniejszych cech modelu LightGBM</figcaption>
-    </figure>
-    <figure>
-        <img src="img/2.png" />
-         <figcaption>8 najistotniejszych cech regresji logistycznej</figcaption>
-    </figure>
-    <figure>
-        <img src="img/3.png" />
-         <figcaption>8 najistotniejszych cech modelu bayesowskiego</figcaption>
-    </figure>
-	<h4>Na pierwszy rzut oka widać, że zmienna odpowiadająca za kraj pochodzenia rezerwacji jest najistotniejszą cechą, niezależnie od modelu. Pomijając pozostałe istotne zmienne w modelu, możemy się zastanowić, czamu akurat kraj ma tak duży wpływ na nasz model. Zobaczmy zatem jak wygląda zależność między sumaryczną liczbą zamówień w danym kraju, a prawdopodobieństwem anulowania rezerwacji.</h4>
+    <p>
+        W poniższej pracy domowej będziemy analizować zbiór <a href="https://www.kaggle.com/jessemostipak/hotel-booking-demand"> Hotel booking demand</a>, a naszym zadaniem modelowym będzie przewidywanie tego, czy poszczególna rezerwacja zostanie anulowana. W pracy domowej skorzystamy z trzech modeli uczenia maszynowego: LightGBM, regresji logistycznej oraz modelu bayesowskiego.</p>
+	<p>
+        W pierwszym zadaniu sprawdzimy jak wygląda permutacyjna ważność cech dla naszych modeli. W przypadku modeli: logistycznego oraz bayesowskiego dodaliśmy zmienne kategoryczne za pomocą tzw. <a href="https://github.com/Dpananos/Categorical-Features">target encodingu</a>. Zmienne z tak zastosowaną transformacją mają sufiks `_impact` w nazwie zmiennej.
+    </p>
+    <p>
+        Poniżej przedstawione wykresy obrazują po 8 najważniejszych zmiennych dla każdego modelu. Długość każdego słupka oznacza średnią ważność permutacyjną. Oprócz średniej, również odchylenie standardowe zostało dodane w postaci zakresu na szczycie każdego ze słupków.
+    </p>
+    <ul>
+        <li>
+            <figure>
+                <img src="img/1.png" />
+                 <figcaption>8 najistotniejszych cech modelu LightGBM</figcaption>
+            </figure>
+        </li>
+        <li>
+            <figure>
+                <img src="img/2.png" />
+                 <figcaption>8 najistotniejszych cech regresji logistycznej</figcaption>
+            </figure>
+        </li>
+        <li>
+            <figure>
+                <img src="img/3.png" />
+                 <figcaption>8 najistotniejszych cech modelu bayesowskiego</figcaption>
+            </figure>
+        </li>
+    </ul>
+	<p>
+        Na pierwszy rzut oka widać, że zmienna odpowiadająca za kraj pochodzenia rezerwacji jest najistotniejszą cechą niezależnie od modelu. Pomijając pozostałe istotne zmienne w modelu, możemy się zastanowić, czamu akurat kraj ma tak duży wpływ na nasz model. Aby sprawdzić tą zależność wyselekcjonizujemy obserwacje z najczęstszych krajów. Zobaczmy zatem jak wygląda zależność między sumaryczną liczbą zamówień w danym kraju (przeskalowaną do przedziału [0, 1]), a prawdopodobieństwem anulowania rezerwacji.
+    </p>
     <figure>
         <img src="img/4.png" />
          <figcaption>Zależność sumarycznej liczby rezerwacji od prawdopodobieństwa anulowania rezerwacji</figcaption>
     </figure>
-	<h4>W gąszczu punktów trudno jest nam zauważyć jakiś szczególny trend w danych, jednak możemy zaobserwować jeden, bardzo oddalony punkt, jeżeli chodzi o liczbę zamówień. Jego prawdopodobieństwo także jest wysoce odstające, z uwagi na blisko 60% anulowanych zamówień, gdzie średnia wynosi około 38%. Taki odstający przypadek może silnie zaburzać predykcje naszego modelu dlatego też usuniemy wszystkie przypadki pochodzące z tego kraju i sprawdzimy ponownie ważność cech naszych modeli.</h4>
-    <figure>
-        <img src="img/5.png" />
-         <figcaption>8 najistotniejszych cech modelu LightGBM</figcaption>
-    </figure>
-    <figure>
-        <img src="img/6.png" />
-         <figcaption>8 najistotniejszych cech regresji logistycznej</figcaption>
-    </figure>
-    <figure>
-        <img src="img/7.png" />
-         <figcaption>8 najistotniejszych cech modelu bayesowskiego</figcaption>
-    </figure>
-	<h4>Po wyrzuceniu niewygodnych przypadków, obserwujemy zwiększoną różnorodność naszych modeli, a pozostałe istotne cechy mają więcej sensu w interpretacji niż to było w przypadku zmiennej `country`.</h4>
+	<p>
+        W gąszczu punktów trudno jest nam zauważyć jakiś szczególny trend w danych, jednak możemy zaobserwować jeden, bardzo oddalony punkt, jeżeli chodzi o liczbę rezerwacji. Jego prawdopodobieństwo także jest wysoce odstające, z uwagi na blisko 60% anulowanych zamówień, gdzie średnia wynosi około 38%. Taki odstający przypadek może silnie zaburzać predykcje naszego modelu dlatego też usuniemy wszystkie przypadki pochodzące z tego kraju i sprawdzimy ponownie ważność cech naszych modeli.
+    </p>
+    <ul>
+        <li>
+            <figure>
+                <img src="img/5.png" />
+                 <figcaption>8 najistotniejszych cech modelu LightGBM po wyrzuceniu obserwacji z odstającego kraju.</figcaption>
+            </figure>
+        </li>
+        <li>
+            <figure>
+                <img src="img/6.png" />
+                 <figcaption>8 najistotniejszych cech regresji logistycznej po wyrzuceniu obserwacji z odstającego kraju.</figcaption>
+            </figure>
+        </li>
+        <li>
+            <figure>
+                <img src="img/7.png" />
+                 <figcaption>8 najistotniejszych cech modelu bayesowskiego po wyrzuceniu obserwacji z odstającego kraju.</figcaption>
+            </figure>
+        </li>
+    </ul>
+	<p>
+        Po wyrzuceniu niewygodnych przypadków, obserwujemy zwiększoną różnorodność naszych modeli, a pozostałe istotne cechy mają więcej sensu w interpretacji niż to było w przypadku zmiennej `country`.
+    </p>
+	<p>
+        Na tle naszych modeli wybija się wiele ważnych cech. Poniżej spróbujemy zinterpretować dlaczego dana zmienna została wybrana jako istotna.
+    </p>
+    <ul>
+        <li>
+            <p>
+                market_segment oraz agent - Obie te zmienne opisują jaki jest rodzaj agencji, przez którą rezerwujemy pokój w hotelu oraz identyfikator konkretnej agencji. Wydaję się być rozsądne, że rodzaj, jakość agencji oraz jej ofert ma znaczenie podczas wybierania wypoczynku, a szczególnie wtedy, gdy chcemy zrezygnować z rezerwacji.
+            </p>
+        </li>
+        <li>
+            <p>
+                total_of_special_requests oraz requeired_car_parking_spaces - Całkowita liczba specjalnych potrzeb w naszej rezerwacji oraz miejsc parkingowych. Wprost proporcjonalnie do liczby naszych wymagań zwiększona jest szansa, że klientowi zależy na swojej rezerwacji.
+            </p>
+        </li>
+        <li>
+            <p>
+                lead_time - Różnica między dniem rezerwacji, a zakwaterowaniem. Z większą różnicą, istnieje większe prawdopodobieństwo, że zrezygnujemy z naszej decyzji, zwłaszcza, jeżeli ze zbliżającym się terminem zakwaterowania związane są koszty finansowe.
+            </p>
+        </li>
+    </ul>
 </div>
 </body>
 </html>
