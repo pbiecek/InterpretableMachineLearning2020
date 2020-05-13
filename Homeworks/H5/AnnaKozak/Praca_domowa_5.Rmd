@@ -1,0 +1,163 @@
+---
+title: "Wyjaśnialne Uczenie Maszynowe - Praca domowa 5"
+author: "Anna Kozak"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: kate
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE, error=FALSE, message=FALSE, warning=FALSE, echo=FALSE}
+library(ggplot2)
+library(ingredients)
+```
+
+## Zbiór danych
+
+Poniższa analiza została przygotowana na zbiorze danych opisujących sprzedaż domów (House Sales Prices). Poniżej lista zmiennych:
+
+- `price_log` logarytm ceny nieruchomości
+- `bedrooms` liczba sypialni
+- `bathrooms` liczba łazienek
+- `m2_living` powierzchnia użytkowa
+- `m2_lot` powierzchnia gruntu
+- `floors` liczba pięter
+- `waterfront` czy nad wodą
+- `view` jakość widoku
+- `condition` stan 
+- `grade` jakość konstrukcji i wykończenia
+- `m2_above` powierzchnia pięter
+- `m2_basement` powierzchnia piwnicy
+- `zipcode` kod pocztowy
+- `lat` szerokość geograficzna
+- `long` długość geograficzna
+- `m2_living15` średnia powierzchnia użytkowa dla 15-Nearest Neighbors
+- `m2_lot15` średnia powierzchnia gruntu dla 15-Nearest Neighbors
+- `dist_stop` odległość od transportu publicznego
+- `ncult` liczba obiektów kultury w promieniu jednego kilometra
+- `age` wiek nieruchomości
+- `since_renovated` liczba lat od ostatniej renowacjii
+
+
+Do modelowania logarytmu ceny sprzedaży domu (`price_log`) wybrano zmienne takie jak `bedrooms`, `bathrooms`, `m2_living`, `m2_lot`, `floors`, `waterfront`, `view`, `condition`, `grade`, `m2_above`, `m2_basement`, `zipcode`, `lat`, `long`, `m2_living15`, `m2_lot15` oraz cztery dodatkowo utworzone zmienne `age` opisującą wiek nieruchomości i `since_renovated` czyli liczba lat od remontu nieruchomości, `dist_stop` mówiąc o odległości od transportu publicznego oraz `ncult` czyli liczba obiektów kultury w promieniu jednego kilometra.
+
+
+## Wyjaśnienia
+
+Zbudowano model lasu losowego (`ranger`), zmienna objaśniana to logarytm cena nieruchomości. 
+
+Poniżej wykres `Feature Importance` dla modelu lasu losowego przedstawia ważność zmiennych. Jako funckję straty przyjęto `loss_root_mean_square()`. Najważniejszą zmienną jest `zipcode`. Jest to zmienna kategoryczna, losowa zamiana kateorii w zbiorze danych zwiększa znacząco błąd predykcji. Kolejnymi zmiennymi, które są ważne to `lat` czyli szerokość geograficzna, `m2_living` czyli powierzchnia użytkowa w mertach kwadratowych oraz `grade` czyli jakość konstrukcji i wykończenia. Następnie mamy zmienne `m2_above`, `long` oraz `m2_living15` odpowiednio powierzchnia pięter w metrach kwadratowych, długość geograficzna oraz powierzchnia użytkowa dla 15 najbliższych sąsiadów w metrach kwadratowych. Pozostałe zmienne mają niewielki wpływ na predykcji w tym modelu.
+
+```{r}
+load("feature_importance/fi_rf.rda")
+plot(fi_rf, max_vars = 15)
+```
+
+W celu porównania ważności zmiennych modelu random forest (wykres powyżej) z innymi modelami zbudowano dodatkowo:
+
+- model drzewa decyzyjnego
+
+- model gbm
+
+- model xgboost.
+
+Poniżej wykresy `Feature Importance` dla tej grupy modeli. Funckja straty podobnie jak wyżej to `loss_root_mean_square()`, dodatkowo paramater `max_vars` ustawiono na 7. Najmniejsze RMSE ma model gbm, kolejno las losowy, drzewo decyzyjne oraz xgboost. Świadczy o tym rozpoczęcie się bloku słupków. Analizując ważność zmiennych między modelami możemy zauważyć, że: 
+
+- zmienna `zipcode` (kod pocztowy) ma największą ważność dla modelu drzewa decyzyjnego, gbm oraz lasu losowego, natomiast dla modelu xgboost ta zmienna nie występuje w top 7 najważnieszych zmiennych
+
+- zmienna `m2_living`(powierzchnia użytkowa) jest drugą co do ważności w każdym z czterech wymienionych modeli
+
+- zmienna `lat` (szerokość geograficzna) podobnie jak `m2_living` jest ważna dla wszystkich modeli, jednakże ma niewielką wartość z wyjątkiem modelu xgboost, dla którego jest to najważniejsza zmienna 
+
+- zmienna `grade` (jakość konstrukcji i wykończenia) jest ważna dla każdego z tych modeli w podobnym stopniu
+
+- zmienna `m2_living15` (powierzchnia użytkowa dla 15 najbliższych sąsiadów) ważna dla wszystkich modeli oprócz modelu gbm, wpływ tej zmiennej jest niewielki
+
+- zmienna `view` (jakość widoku) jest w top 7 zmiennych ważnych dla modelu random forest, gbm oraz xgboost. Dla modelu gbm i xgboost udział tej zmiennej jest podobny, dla modelu lasu losowego jest to wartość znacznie niższa
+
+- zmienna `waterfront` (czy jest widok na wodę) jest ważna dla modelu lasu losowego jednak w bardzo mały stopniu, można powiedzieć, że tej zmiany praktycznie nie ma
+
+- zmienna `m2_lot` (powierzchnia gruntu) jest ważna dla modelu gbm oraz xgboost w podobnym stopniu
+
+- zmienna `since_renovated` (liczba lat od ostatniego remontu) występuje jako ważna tylko dla modelu gbm, jednak jej wpływ jest niewielki
+
+- zmienna `long` (długość geograficzna) zmienna ważna dla modelu lasu losowego oraz xgboost, wpływ zmiennej `long` dla modelu xgboost jest większy niż w modelu lasu losowego
+
+- zmienna `m2_above` (powierchnia pięter) występuje jako ważna tylko dla modelu lasu losowego
+
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=10, fig.width=10}
+
+load("feature_importance/fi_decisiontree.rda")
+load("feature_importance/fi_decisiontree_onehot.rda")
+load("feature_importance/fi_gbm.rda")
+load("feature_importance/fi_gbm_onehot.rda")
+load("feature_importance/fi_lm_onehot.rda")
+load("feature_importance/fi_rf.rda")
+load("feature_importance/fi_rf_onehot.rda")
+load("feature_importance/fi_xgb.rda")
+load("feature_importance/fi_xgb_onehot.rda")
+
+plot(fi_decisiontree, fi_gbm, fi_rf, fi_xgb, max_vars = 7)
+
+```
+Następnie zbudowano modele, które zmienną kategoryczną `zipcode`, która ma 70 poziomów zakodowano metodą one-hot, czyli tworzymy 70 zmiennych binarnych. Poniżej wykresy `Feature Importance` dla modeli takich jak:
+
+- drzewo decyzyjne
+
+- gbm
+
+- las losowy
+
+- xgboost
+
+- regresja liniowa.
+
+Poniżej analiza zmiennych ukazanych na wykresach dla wyżej wymienionych modeli, ustalono funkcję starty jako `loss_root_mean_square()`oraz dodatkowo paramater `max_vars` na 7:
+
+- zmienna `m2_living`(powierzchnia użytkowa) jest wymieniona jako ważna w każdym z modeli
+
+- zmienna `grade` (jakość konstrukcji i wykończenia) podobnie jak zmienna `m2_living` występuje dla każdego modelu jako ważna
+
+- zmienna `lat` (szerokość geograficzna) jest ważna dla wszystkich modeli oprócz regresji liniowej, przyjmuje największą wartość ważności
+
+- zmienna `m2_lot` (powierzchnia gruntu) ważna dla modelu gbm oraz xgboost, ma średni wpływ 
+
+- zmienna `long` (długość geograficzna) podobnie jak zmienna `m2_lot` jest ważna tylko w modelu gbm oraz xgboost o podobnej wartości 
+
+- zmienna `since_renovated` (liczba lat od ostatniego remontu) ważna dla modelu gbm oraz xgboost, niewielka wartość
+
+- zmienna `view` (jakość widoku) jest wymieniona jak ważna w modelu gbm oraz lasu losowego, przyjmuje podobną wartość, niewielki udział
+
+- zmienna `m2_living15` (powierzchnia użytkowa dla 15 najbliższych sąsiadów) ma wpływ w modelu lasu losowego oraz nieco niższy w modelu xgboost
+
+- zmienna `m2_above` (powierchnia pięter) ważna w modelu random forest
+
+- zmienna `bathrooms` (liczba łazienek) podobnie jak zmienna `m2_above` jest ważna tylko w modelu lasu losowego
+
+- zmienne `zipcode...` (kod pocztowy...) wymienione jako ważne w modelu regresji liniowej, gdzie wartość ich wpływu jest bardzo duża, porównywalna do pozostałych zmiennych, również są one w top 7 zmiennych dla modelu drzewa decyzyjnego, ale ich wpływ jest bliski wartości 0.
+
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=10, fig.width=10}
+plot(fi_decisiontree_onehot, fi_gbm_onehot, fi_rf_onehot, fi_xgb_onehot, fi_lm_onehot, max_vars = 7)
+```
+
+
+Ostatecznie porównano wszystkie zbudowane modele razem. Poniżej wykresy `Feature Importance` z funkcją straty `loss_root_mean_square()`oraz dodatkowo paramater `max_vars` równym 3. Wszystkie modele zgodnie wskazały zmienną `m2_living` jako ważną. Kolejno jest zmienna `grade`, którą wskazały wszystkie modele oprócz lasu losowego. Zmienną `lat` wskazało 6 modeli jako ważną. Modele, które miały zmienną `zipcode` jako zmienną kategoryczną wskazały ją jako ważną.
+
+
+```{r, message=FALSE, warning=FALSE, error=FALSE, fig.height=12, fig.width=10}
+plot(fi_decisiontree, fi_gbm, fi_rf, fi_xgb, fi_decisiontree_onehot, fi_gbm_onehot, fi_rf_onehot, fi_xgb_onehot, fi_lm_onehot, max_vars = 3)
+```
+
+### Podsumowanie 
+
+Permutacyjna ważność zmiennych w modelu w łatwy sposób ocenia wpływ każdej zmiennej na predykcję modelu. Jest prosta w zrozumieniu i łatwa w interpretacji. Możemy porównywać ważność zmiennych między modelami. W przedstawionych przykładładach możemy zauważyć, że modele mają podobne ważne zmienne, przez co możemy określić, na które warto zwrócić uwagę. Jedyną wadą przedstawionego rozwiązania obliczania ważności zmiennych jest losowość permutacji, ponieważ dla różnych permutacji możemy uzyskac różne wyniki. W celu zaznaczenia informacji o błędzie na podstawie 10 permutacji w metodzie wyrysowane są boxploty.
+
+
+Kody do wyliczenia [ważności zmiennych](https://github.com/kozaka93/InterpretableHouseSalePrices/blob/master/Explanations/feature_importance/calculate_fi.R) oraz [budowy przedstawionych modeli](https://github.com/kozaka93/InterpretableHouseSalePrices/tree/master/Models/PredictiveModels) zostały umieszczone na repozytorium.

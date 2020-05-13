@@ -83,7 +83,7 @@ Presentations can be prepared by one or two students. Each group should present 
 * [Agency + Automation: Designing Artificial Intelligence into Interactive Systems
 Jeff Heer](https://slideslive.com/38921798/agency-automation-designing-artificial-intelligence-into-interactive-systems) by Jeff Heer at NIPS19
 * other papers from this list https://github.com/pbiecek/xai_resources
-
+* Soft: https://captum.ai/
 
 
 # Projects
