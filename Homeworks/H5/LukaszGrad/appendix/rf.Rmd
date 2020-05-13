@@ -1,0 +1,70 @@
+---
+title: "Simple XGBoost"
+output: html_notebook
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(GGally)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(randomForest)
+
+source('../data_utils.R')
+```
+
+```{r}
+data = read_modelling('../data', target_col = 'recid')
+data = split_data(data)
+
+data_violent = read_modelling('../data', target_col = 'recid_violent')
+data_violent = split_data(data_violent)
+
+data$train %>% head()
+```
+
+```{r}
+rf = randomForest(x = data$train %>% select(-recid, -person_id), 
+                  y = data$train$recid,
+                  ntree = 50)
+rf_violent = randomForest(x = data_violent$train %>% select(-recid_violent, -person_id), 
+                          y = data_violent$train$recid_violent,
+                          ntree = 50)
+```
+
+```{r}
+rf_predict = function(model, data) {
+    predict(model, data %>% select(-recid, -person_id), type = 'prob')[, 2]
+}
+
+rf_explain = DALEX::explain(rf, data = data$test,
+                            y = data$test$recid == 1, 
+                            type = 'classification', label = 'Random Forest',
+                            predict_function = rf_predict)
+
+rf_predict_violent = function(model, data) {
+    predict(model, data %>% select(-recid_violent, -person_id), type = 'prob')[, 2]
+}
+
+rf_explain_violent = DALEX::explain(rf_violent, data = data_violent$test,
+                            y = data_violent$test$recid_violent == 1, 
+                            type = 'classification', label = 'Random Forest Violent',
+                            predict_function = rf_predict_violent)
+```
+
+```{r}
+rf_perf = DALEX::model_performance(rf_explain, cutoff = 0.37)
+rf_perf
+
+rf_perf_violent = DALEX::model_performance(rf_explain_violent, cutoff = 0.16)
+rf_perf_violent
+```
+
+```{r}
+save(rf_explain, rf, file = 'rf_all.RData')
+save(rf_explain_violent, rf_violent, file = 'rf_all_viol.RData')
+```
+
