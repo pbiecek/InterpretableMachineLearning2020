@@ -1,0 +1,147 @@
+---
+title: "Simple XGBoost"
+output: html_notebook
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(GGally)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(glmnet)
+library(randomForest)
+library(xgboost)
+
+source('../data_utils.R')
+```
+
+```{r}
+data = read_modelling('../data', target_col = 'recid_violent')
+data = split_data(data)
+
+data$train %>% head()
+```
+
+```{r}
+set.seed(42)
+folds = caret::groupKFold(data$train$person_id, k = 5)
+folds_test = lapply(folds, function(x) (1:nrow(data$train))[-x])
+
+xlevs_train = data$train %>% select(-recid_violent)
+xlevs <- lapply(xlevs_train[, sapply(data$train %>% select(-recid_violent), is.factor), drop = F], function(j){
+    levels(j)
+})
+```
+
+```{r}
+params = list(
+    eta = 0.3, 
+    nthread = 2, 
+    colsample_bytree = 0.5,
+    objective = "binary:logistic", 
+    scale_pos_weight = 1, 
+    eval_metric = 'auc'
+)
+
+dtrain_xgb = model.matrix(recid_violent ~ . - person_id - 1, data = data$train)
+label = as.numeric(data$train$recid_violent) - 1
+
+model = xgb.cv(params, dtrain_xgb, nrounds = 25, 
+               label = label, folds = folds_test, early_stopping_rounds = 3)
+```
+
+```{r}
+library(progress)
+
+grid_search <- expand.grid(max_depth = c(3, 5, 7),
+                           eta = c(0.3, 0.1, 0.03),
+                           colsample_bytree = c(0.5, 0.8, 1.0),
+                           subsample = c(0.5, 0.8),
+                           min_child_weight = c(1, 5, 10),
+                           lambda = c(1, 3, 5),
+                           alpha = c(0, 1),
+                           scale_pos_weight = c(1), 
+                           nthread = c(4),
+                           objective = c("binary:logistic"), 
+                           eval_metric = c('auc')
+)
+
+# Simple search for now
+grid_search <- expand.grid(max_depth = c(3, 5),
+                           eta = c(0.3),
+                           colsample_bytree = c(0.5, 0.8, 1.0),
+                           subsample = c(0.5, 0.8),
+                           min_child_weight = c(1, 5, 10),
+                           lambda = c(1, 3),
+                           alpha = c(0, 1),
+                           scale_pos_weight = c(1), 
+                           nthread = c(4),
+                           objective = c("binary:logistic"), 
+                           eval_metric = c('auc')
+)
+
+grid_search_list <- split(grid_search, seq(nrow(grid_search)))
+pb <- progress_bar$new(total = nrow(grid_search))
+
+perf <- numeric(nrow(grid_search))
+nrounds <- numeric(nrow(grid_search))
+
+model = xgb.cv(params, dtrain_xgb, nrounds = 25, 
+               label = label, folds = folds_test, early_stopping_rounds = 3)
+
+for (i in 1:length(grid_search_list)) {
+    params = grid_search_list[[i]]
+    model <- xgb.cv(params, dtrain_xgb, nrounds = 1000, 
+                    label = label, folds = folds_test, early_stopping_rounds = 5,
+                    verbose = 0)
+    perf[i] <- max(model$evaluation_log$test_auc_mean)
+    nrounds[i] = model$evaluation_log$iter[which.max(model$evaluation_log$test_auc_mean)]
+    gc(verbose = FALSE)
+    pb$tick()
+}
+
+grid_search$perf = perf
+grid_search$nrounds = nrounds
+```
+
+```{r}
+cat("Model ", which.max(perf), " with best AUC: ", max(perf), ", nrounds: ", nrounds[which.max(perf)], sep = "","\n")
+```
+
+```{r}
+grid_search %>%
+    arrange(desc(perf)) %>%
+    head(10)
+```
+
+```{r}
+best_ind = which.max(perf)
+model_violent = xgboost(params = grid_search_list[[best_ind]], 
+                        dtrain_xgb, nrounds = nrounds[best_ind], 
+                        label = label)
+```
+
+```{r}
+xgb_predict = function(model, data) {
+    data = model.matrix(recid_violent ~ . - person_id - 1, data = data, xlev = xlevs)
+    predict(model, data, type = 'prob')
+}
+
+xgb_explain_violent = DALEX::explain(model_violent, data = data$test,
+                                     y = data$test$recid_violent == 1, 
+                                     type = 'classification', label = 'XGB Violent',
+                                     predict_function = xgb_predict)
+```
+
+```{r}
+xgb_perf = DALEX::model_performance(xgb_explain_violent, cutoff = 0.5)
+xgb_perf
+```
+
+```{r}
+save(xgb_explain_violent, model_violent, data, xlevs, file = 'xgb_all_violent.RData')
+```
+
