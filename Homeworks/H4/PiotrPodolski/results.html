@@ -13239,6 +13239,14 @@ Name: 1516, Length: 143, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>Here I have selected a patient with best predicted value of expenses, which differ by 0.05. Selected patient as an 42 years old patient with income of 50k.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="1.1.2-Observation-2:-Instance-with-most-overestimated-value--between-prediction-and-predicted-value">1.1.2 Observation 2: Instance with most overestimated value  between prediction and predicted value<a class="anchor-link" href="#1.1.2-Observation-2:-Instance-with-most-overestimated-value--between-prediction-and-predicted-value">&#182;</a></h3>
 </div>
 </div>
@@ -13327,6 +13335,14 @@ Name: 8883, Length: 143, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>Here I have selected a patient with the most overestimated value of expenses, which differ by 125k. Selected patient as an 70 years old patient with income of 16k.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="1.1.3-Observation-3:-Instance-with-most-underestimated-value--between-prediction-and-predicted-value">1.1.3 Observation 3: Instance with most underestimated value  between prediction and predicted value<a class="anchor-link" href="#1.1.3-Observation-3:-Instance-with-most-underestimated-value--between-prediction-and-predicted-value">&#182;</a></h3>
 </div>
 </div>
@@ -13397,7 +13413,7 @@ PCS42                           14.08
 MCS42                           51.49
 K6SUM42                          3.00
 INCOME_M                     47684.00
-                               ...
+                               ...   
 POVCAT15_NEAR_POOR               0.00
 POVCAT15_POOR_OR_NEGATIVE        0.00
 INSCOV15_ANY_PRIVATE             0.00
@@ -13411,6 +13427,14 @@ Name: 12577, Length: 143, dtype: float64</pre>
 </div>
 </div>
 
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here I have selected a patient with the most underestimated value of expenses, which differ by 33k. Selected patient as an 75 years old patient with income of 47k.</p>
+
+</div>
+</div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
@@ -13443,7 +13467,7 @@ Name: 12577, Length: 143, dtype: float64</pre>
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>WARNING:root:Model is unlabeled...
+<pre>WARNING:root:Model is unlabeled... 
  You can add label using method set_label
 </pre>
 </div>
@@ -13531,7 +13555,7 @@ Name: 12577, Length: 143, dtype: float64</pre>
 
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>WARNING:root:Model is unlabeled...
+<pre>WARNING:root:Model is unlabeled... 
  You can add label using method set_label
 </pre>
 </div>
@@ -13578,7 +13602,7 @@ PCS42                           -1.0
 MCS42                           -1.0
 K6SUM42                         -1.0
 INCOME_M                     28766.0
-                              ...
+                              ...   
 POVCAT15_NEAR_POOR               0.0
 POVCAT15_POOR_OR_NEGATIVE        0.0
 INSCOV15_ANY_PRIVATE             1.0
@@ -13820,7 +13844,7 @@ Name: 15780, Length: 143, dtype: float64</pre>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>For this instance the influence of features <strong>INCOME_M</strong> and <strong>AGE31X</strong> is different between models. For Linear Regression there is no influence on the result, but for Gradient Boosting Regressor there is influence of those features on the predicted outcome. The reason for this might be how the two models learn and which variables the take into account when making predictions. For Linear Regression the outcome of the model does not change, while for Gradient Boosting Regressor they influence the outcome of the model.</p>
+<p>For this instance the influence of features <strong>INCOME_M</strong> and <strong>AGE31X</strong> is different between models. For Linear Regression there is no influence on the result, but for Gradient Boosting Regressor there is influence of those features on the predicted outcome. The reason for this might be how the two models learn and which variables the take into account when making predictions. For Linear Regression the outcome of the model does not change, while for Gradient Boosting Regressor they influence the outcome of the model. An argument behind it could be, that the selected patient is a child of age 13 with no income, so one model could have learned this, while the other not.</p>
 
 </div>
 </div>
