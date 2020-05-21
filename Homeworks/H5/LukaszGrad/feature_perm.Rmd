@@ -1,0 +1,122 @@
+---
+title: "Lukasz Grad Homework 5 - Feature Importance for COMPAS"
+output:
+  html_document:
+    df_print: paged
+    code_folding: hide
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(GGally)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(glmnet)
+library(randomForest)
+library(xgboost)
+
+source('../data_utils.R')
+```
+
+```{r, include=F}
+load('xgb_all_violent.RData')
+data_violent = data
+load('xgb_all.RData')
+load('lasso_all.RData')
+load('lasso_all_violent.RData')
+load('rf_all.RData')
+load('rf_all_viol.RData')
+```
+
+```{r, include=F}
+recid_th = 0.37
+recid_violent_th =  16
+
+xgb_perf = DALEX::model_performance(xgb_explain, cutoff = recid_th)
+xgb_perf
+xgb_perf_violent = DALEX::model_performance(xgb_explain_violent, cutoff = recid_violent_th)
+xgb_perf_violent
+
+glmnet_perf = DALEX::model_performance(cv_glmnet_explain, cutoff = recid_th)
+glmnet_perf
+glmnet_perf_violent = DALEX::model_performance(cv_glmnet_explain_violent, cutoff = recid_violent_th)
+glmnet_perf_violent
+
+rf_perf = DALEX::model_performance(rf_explain, cutoff = recid_th)
+rf_perf
+rf_perf_violent = DALEX::model_performance(rf_explain_violent, cutoff = recid_violent_th)
+rf_perf_violent
+```
+
+We focus on modelling recidivism and violent recidivism as binary classification. Specifically, the positive class denotes whether an individual will commit a crime (a violent crime) within a 2-year period.
+
+```{r}
+vip_xgb <- variable_importance(xgb_explain, loss_function = DALEX::loss_one_minus_auc)
+vip_rf <- variable_importance(rf_explain, loss_function = DALEX::loss_one_minus_auc)
+vip_glmnet <- variable_importance(cv_glmnet_explain, loss_function = DALEX::loss_one_minus_auc)
+```
+
+```{r}
+vip_xgb_violent <- variable_importance(xgb_explain_violent, loss_function = DALEX::loss_one_minus_auc)
+vip_rf_violent <- variable_importance(rf_explain_violent, loss_function = DALEX::loss_one_minus_auc)
+vip_glmnet_violent <- variable_importance(cv_glmnet_explain_violent, loss_function = DALEX::loss_one_minus_auc)
+```
+
+## 2. Calculate permutational variable importance for the selected model
+
+Tuned XGBoost model for recidivism
+
+We can see that the most important variable is the number of  previous arrests. Another important factor is the
+age of a person - younger people are much more likely to commit crime again. Third indicator is the number of
+previous misdemeanors. It may be that people commiting lesser crimes are more likely to do it again. Final
+important factor is the age of first offense. People with a crime history beginning at teen age are more likely
+to reoffend in future.
+
+```{r}
+plot(vip_xgb, max_vars = 10) +
+    ggtitle('Permutation variable importance with (1 - AUC) loss')
+```
+
+Tuned XGBoost model for violent recidivism
+
+As in recidivism modelling, in violent recidivism number of previous arrests and current age are again
+important factors. However, the deciding factor is the number of previous violent charges - people commiting
+violent crimes are more likely to do so in future. We see lower impact of the age of the first offense.
+
+```{r}
+plot(vip_xgb_violent, max_vars = 10) +
+    ggtitle('Permutation variable importance with (1 - AUC) loss')
+```
+
+## 3. Train three or more candidate models (different variables, different transformations, different model structures) and compare ranking of important features between these models. Are they similar or different?
+
+Here we show the analysis only for basic recidivism problem.
+
+We see that the overall AUC is lowest for tuned XGBoost model, followed by Logistc Lasso and Random Forest.
+
+As for the tree models - we see similar variables chosen as important. RF model also treats number of
+probations as a significant factor.
+
+In case of the Logistic Lasso, we see that basically only age of first offense and number of misdemeanor 
+variables are significant. This strongly suggests presence of highly correlated variables, which indeed
+is the case. Age and age of first offense are highly correlated, similarily, number of misdemeanors and number
+of arrests are also highly dependent.
+
+In XGB and LL models, sex and race factors are mildly significant. 
+In RF sex and race are not selected as important.
+
+```{r, fig.width = 8, fig.height = 10}
+plot(vip_xgb, vip_rf, vip_glmnet, max_vars = 10) +
+    ggtitle('Permutation variable importance with (1 - AUC) loss')
+```
+
+```{r}
+plot(xgb_perf, glmnet_perf, rf_perf, geom = "roc")
+```
+
+```{r}
+plot(xgb_perf_violent, glmnet_perf_violent, rf_perf_violent, geom = "roc")
+```
