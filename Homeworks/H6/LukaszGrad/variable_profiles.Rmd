@@ -1,0 +1,127 @@
+---
+title: "Lukasz Grad Homework 6 - Variable Profiles for COMPAS"
+output:
+  html_document:
+    df_print: paged
+    code_folding: hide
+---
+
+```{r, include=F}
+library(tidyverse)
+library(DALEX)
+library(ggplot2)
+library(GGally)
+library(ggthemes)
+library(gridExtra)
+library(caret)
+library(glmnet)
+library(randomForest)
+library(xgboost)
+```
+
+```{r, include=F}
+load('xgb_all_violent.RData')
+data_violent = data
+load('xgb_all.RData')
+load('lasso_all.RData')
+load('lasso_all_violent.RData')
+load('rf_all.RData')
+load('rf_all_viol.RData')
+```
+
+```{r, include=F}
+recid_th = 0.37
+recid_violent_th =  16
+
+xgb_perf = DALEX::model_performance(xgb_explain, cutoff = recid_th)
+xgb_perf
+xgb_perf_violent = DALEX::model_performance(xgb_explain_violent, cutoff = recid_violent_th)
+xgb_perf_violent
+
+glmnet_perf = DALEX::model_performance(cv_glmnet_explain, cutoff = recid_th)
+glmnet_perf
+glmnet_perf_violent = DALEX::model_performance(cv_glmnet_explain_violent, cutoff = recid_violent_th)
+glmnet_perf_violent
+
+rf_perf = DALEX::model_performance(rf_explain, cutoff = recid_th)
+rf_perf
+rf_perf_violent = DALEX::model_performance(rf_explain_violent, cutoff = recid_violent_th)
+rf_perf_violent
+```
+
+We focus on modelling recidivism and violent recidivism as binary classification. Specifically, the positive class denotes whether an individual will commit a crime (a violent crime) within a 2-year period.
+
+## 2. For selected variables from the model (1) calculate Partial Dependence Profiles and Accumulated Local Dependence
+
+```{r}
+plot_pdp <- function(explainer, vars, type = 'partial', groups = NULL) {
+    pdp = variable_profile(explainer = explainer, type = type, 
+                           variables = vars, groups = groups, N = 50)
+    plot(pdp, geom = 'profiles')
+}
+
+plot_profiles <- function(explainer, vars, groups = NULL) {
+    pdp = variable_profile(explainer = explainer, type = 'partial', 
+                           variables = vars, groups = groups)
+    ac = variable_profile(explainer = explainer, type = 'accumulated', 
+                          variables = vars, groups = groups)
+    pdp$agr_profiles$`_label_` = 'Partial Dependence'
+    ac$agr_profiles$`_label_` = 'Accumulated Local'
+    plot(pdp$agr_profiles, ac$agr_profiles)
+}
+
+plot_contrastive <- function(explainer1, explainer2, vars, type = 'partial') {
+    p1 = variable_profile(explainer = explainer1, type = type,
+                          variables = vars)
+    p2 = variable_profile(explainer = explainer2, type = type,
+                          variables = vars)
+    plot(p1$agr_profiles, p2$agr_profiles)
+}
+```
+
+```{r, fig.height=7, fig.width=7}
+vars = c('current_age', 
+         'age_at_first_offence',
+         'number_of_misdemeanours',
+         'number_of_arrests')
+
+plot_profiles(xgb_explain, vars = vars) +
+    ggtitle('PDP and ALE Profiles for XGBoost model - recidivism prediction')
+```
+
+We present variables profiles for the most impactful variables selected with permutation importance test based on Homework 5.
+
+For the `current_age` and `age_of_first_offence` variables we see the decline in recidivism probability with older age. However, 
+the decline during the young age is steeper for the `current_age` variable. We can also see a clear reduction in predicted 
+probablity around age $20$ for `age_of_first_offence` - suggesting the importance of committing a crime in teen years.
+
+As expected, we see clear correlation of the response with the `number_of_misdeameanours` and `number_of_arrests` predictors.
+What is interesting is the sharp increase in recidivism probability when the `number_of_arrests` increases from $1$ to $2$.
+It suggests that people with a single offence are not yet significantly more likely to commit crime again.
+
+We can see little to no difference (up to a constant) in profile shapes for PDP and ALE. Apart from `age_of_first_offence` the
+profiles are parallel to each other, suggesting the effect of variables on the response has little to no dependence on the values 
+of other variables.
+
+```{r, fig.height=7, fig.width=7}
+plot_pdp(xgb_explain, vars = vars, type = 'accumulated', groups = 'sex')
+```
+
+Here we show ALE plots when grouped by gender. An interesting observation for the `number_of_misdemeanours` variable is that in the
+extreme cases of multiple previous offences - the probability of recidivism is much higher for women. We can also see the impact of
+`current_age` and `age_of_first_offence` is lower for women and they retain higher recidivism probability across whole spectrum.
+
+## 3. Train a second model with a different structure (neural nets, linear, other boosting) and find a variable that has different behaviour between models
+
+```{r, fig.height=7, fig.width=7}
+plot_contrastive(cv_glmnet_explain, xgb_explain, vars, type = 'accumulated') +
+    ggtitle('ALE Profiles for XGBoost and Logistic Regression models')
+```
+
+We can see similar monotonic profiles for the age variables. As expected, the linear model profiles are smooth while we observe sharp declines
+for the boosted trees model. Overall, we see that for Logistic Regression model the impact of `current_age` is lower than for XGBoost. 
+On the other hand, impact of `age_of_first_offence` is higher. 
+
+The biggest difference in model profiles is observed for `number_of_arrests` variable. In case of the  XGBoost model we see a clear increase
+in the response when the number of arrests increases from $1$ to $2$. However, the profile for linear model is basically flat which indicates
+that the Logistic Lasso model did not chose this predictor as significant at all.
